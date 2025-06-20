@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Buscar Amigos</title>
+    <link rel="stylesheet" href="/static/css/perfil.css">
+</head>
+<body>
+    <a href="/profile" class="btn-voltar">&#8592; Voltar ao perfil</a>
+    <h2 style="text-align:center;">Resultados para "{{ q }}"</h2>
+    
+    <div class="search-friend-section" style="text-align:center; margin-bottom:18px;">
+        <form action="/search_friend" method="get" style="display:inline-flex; gap:8px;">
+            <input type="text" name="q" placeholder="Buscar amigo por nome ou usuário" required style="padding:7px 12px; border-radius:4px; border:1px solid #6c5ce7;">
+            <button type="submit" style="background:#6c5ce7; color:#fff; border:none; border-radius:4px; padding:7px 16px; cursor:pointer;">Buscar</button>
+        </form>
+    </div>
+
+    <div class="friends_section" style="margin-top:24px;">
+        {% if results %}
+            <ul>
+            {% for user in results %}
+                <li style="margin-bottom:18px;display:flex;align-items:center;gap:14px;">
+                    <a href="/profile?id={{ user['user_id'] }}">
+                        <img src="/{{ user['profile_picture'] or 'static/default_avatar.png' }}" 
+                             alt="Foto de {{ user['name'] or user['username'] }}" 
+                             style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #6c5ce7;margin-right:10px;">
+                        {{ user['name'] or user['username'] }}
+                    </a>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <span style="color:#c7d5e0;">Nenhum usuário encontrado.</span>
+        {% endif %}
+    </div>
+</body>
+</html>

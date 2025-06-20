@@ -1,0 +1,32 @@
+.page-btn {
+    padding: 2px 8px;
+    margin: 0 2px;
+    font-size: 0.95em;
+    border-radius: 4px;
+    border: none;
+    background: #6c5ce7;
+    color: #fff;
+    cursor: pointer;
+    min-width: 26px;
+    min-height: 26px;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 3px rgba(44,44,84,0.08);
+    outline: none;
+}
+.page-btn.active, .page-btn:focus {
+    background: #341f97;
+    color: #fff;
+}
+.page-btn:hover {
+    background: #2d2d7b;
+    color: #fff;
+}
+.pagination-dots {
+    color: #6c5ce7;
+    margin: 0 4px;
+    font-size: 1em;
+    pointer-events: none;
+}
+.pagination {
+    text-align: center;
+}

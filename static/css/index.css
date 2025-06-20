@@ -1,0 +1,151 @@
+body {
+    background: #18151f;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: #221b2f;
+    padding: 24px 0 12px 0;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(44,44,84,0.10);
+}
+
+header h1 {
+    color: #a29bfe;
+    font-size: 2.2em;
+    margin: 0;
+    letter-spacing: 2px;
+}
+
+.search-bar {
+    display: flex;
+    justify-content: center;
+    margin: 32px 0 24px 0;
+    gap: 8px;
+}
+
+#search-input {
+    padding: 10px 14px;
+    border-radius: 4px;
+    border: 1px solid #6c5ce7;
+    background: #18151f;
+    color: #fff;
+    font-size: 1em;
+    outline: none;
+    width: 320px;
+    transition: border 0.2s;
+}
+
+#search-input:focus {
+    border: 1.5px solid #a29bfe;
+}
+
+#search-button {
+    background: #6c5ce7;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 18px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#search-button:hover {
+    background: #2d2d7b;
+}
+
+.games-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.game-card {
+    background: #232946;
+    border-radius: 8px;
+    padding: 16px;
+    width: 220px;
+    box-shadow: 0 1px 4px rgba(44,44,84,0.10);
+    text-align: center;
+    transition: box-shadow 0.2s, border 0.2s;
+    border: 1.5px solid #6c5ce7;
+}
+
+.game-card:hover {
+    box-shadow: 0 4px 16px rgba(44,44,84,0.18);
+    border: 1.5px solid #a29bfe;
+}
+
+.game-image {
+    width: 180px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    background: #18151f;
+}
+
+.game-title {
+    color: #a29bfe;
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.metacritic-score {
+    color: #00b894;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.store-links {
+    margin-top: 8px;
+}
+
+.store-link {
+    color: #6c5ce7;
+    text-decoration: none;
+    font-weight: bold;
+    margin-right: 8px;
+    transition: color 0.2s;
+}
+
+.store-link:hover {
+    color: #2d2d7b;
+    text-decoration: underline;
+}
+
+.loading {
+    text-align: center;
+    color: #a29bfe;
+    font-size: 1.2em;
+    margin: 32px 0;
+}
+
+.pagination {
+    text-align: center;
+    margin: 18px 0;
+}
+
+@media (max-width: 700px) {
+    .games-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .game-card {
+        width: 96vw;
+        padding: 10px;
+    }
+    .game-image {
+        width: 90vw;
+        height: 40vw;
+        min-height: 80px;
+    }
+}

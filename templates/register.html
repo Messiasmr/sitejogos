@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - The Mobilete Games</title>
+    <link rel="stylesheet" href="/static/css/registro.css">
+</head>
+<body>
+    <header>
+        <h1>Registro</h1>
+    </header>
+    
+    <main>
+        <form action="/register" method="post" enctype="multipart/form-data" class="form-container">
+            <label for="name">Nome:</label>
+            <input type="text" id="name" name="name" placeholder="Digite seu nome" required>
+            
+            <label for="username">Usuário:</label>
+            <input type="text" id="username" name="username" placeholder="Digite seu nome de usuário" required>
+            
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="Digite seu email" required>
+            
+            <label for="password">Senha:</label>
+            <input type="password" id="password" name="password" placeholder="Digite sua senha" required>
+            
+            <label for="profile_picture">Foto de Perfil:</label>
+            <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+            
+            <button type="submit">Registrar</button>
+        </form>
+        <p>Já tem uma conta? <a href="/login">Faça login</a>.</p>
+    </main>
+</body>
+</html>

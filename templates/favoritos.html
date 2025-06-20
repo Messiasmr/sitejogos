@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Favoritos de {{ user['name'] or user['username'] }}</title>
+    <link rel="stylesheet" href="/static/css/perfil.css">
+    <link rel="stylesheet" href="/static/css/favoritos.css">
+</head>
+<body>
+    <div class="favoritos-header">
+        <a href="/profile?id={{ user['user_id'] }}">
+            <img src="/{{ user['profile_picture'] or 'static/default_avatar.png' }}" alt="Foto de perfil" class="favoritos-avatar">
+        </a>
+        <div class="favoritos-username">{{ user['name'] or user['username'] }}</div>
+    </div>
+
+    <div class="favoritos-catalogo">
+        {% if favoritos %}
+            {% for fav in favoritos %}
+                <div class="favorito-card">
+                    <img src="{{ fav['game_image'] }}" alt="{{ fav['game_name'] }}" class="favorito-img">
+                    <div class="favorito-title">{{ fav['game_name'] }}</div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <span style="color:#c7d5e0;">Nenhum favorito ainda.</span>
+        {% endif %}
+    </div>
+
+    <!-- Paginação -->
+    {% if total > per_page %}
+    <div class="favoritos-pagination">
+        {% for p in range(1, (total // per_page) + (1 if total % per_page else 0) + 1) %}
+            {% if p == page %}
+                <span class="favoritos-page atual">{{ p }}</span>
+            {% else %}
+                <a class="favoritos-page" href="{{ url_for('favoritos', user_id=user['user_id'], page=p) }}">{{ p }}</a>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Amigos (opcional) -->
+    {% if amigos %}
+    <div class="favoritos-amigos">
+        <h4>Ver favoritos dos amigos:</h4>
+        {% for amigo in amigos %}
+            <a href="{{ url_for('favoritos', user_id=amigo['user_id']) }}" class="favoritos-amigo-link">
+                <img src="/{{ amigo['profile_picture'] or 'static/default_avatar.png' }}" alt="{{ amigo['name'] or amigo['username'] }}" class="favoritos-amigo-avatar">
+                <span>{{ amigo['name'] or amigo['username'] }}</span>
+            </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+</body>
+</html>
