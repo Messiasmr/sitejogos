@@ -1,4 +1,5 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify, abort
+from flask_socketio import SocketIO, emit, join_room, leave_room
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
@@ -33,13 +34,23 @@ os.makedirs(UPLOAD_FOLDER_BG, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["UPLOAD_FOLDER_BG"] = UPLOAD_FOLDER_BG
 
+socketio = SocketIO(app)
+
 # Home
 @app.route("/")
 def home():
     user_email = session.get("user")
     user = usuarios.find_one({"email": user_email}) if user_email else None
     logged_user = user
-    return render_template("index.html", logged_user=logged_user, user=user)
+
+    page = int(request.args.get("page", 1))
+
+    return render_template(
+        "index.html",
+        logged_user=logged_user,
+        user=user,
+        page=page
+    )
 
 # Register
 @app.route("/register", methods=["GET", "POST"])
@@ -122,13 +133,13 @@ def profile():
 
     comments_list = list(comments.find({"profile_owner": user.get("email")}))
     friend_ids = user.get("friends", [])
-    friends = list(usuarios.find({"user_id": {"$in": friend_ids}}))
+    friends = list(usuarios.find({"user_id": {"$in": friend_ids}})) if friend_ids else []
 
     return render_template(
         "profile.html",
         user=user,
         comments=comments_list,
-        friends=friends,
+        friends=friends,  # <-- Passa a lista de amigos reais
         logged_user=logged_user,
         usuarios=usuarios
     )
@@ -257,8 +268,12 @@ def api_games():
     page = request.args.get("page", 1)
     api_key = os.getenv("RAWG_API_KEY")
     url = f"https://api.rawg.io/api/games?key={api_key}&search={search}&page={page}"
-    response = requests.get(url)
-    return jsonify(response.json())
+    try:
+        response = requests.get(url, timeout=8)
+        response.raise_for_status()
+        return jsonify(response.json())
+    except Exception as e:
+        return jsonify({"results": [], "count": 0, "error": str(e)}), 500
 
 # Favoritar jogo
 @app.route("/favorite", methods=["POST"])
@@ -346,5 +361,21 @@ for user in usuarios.find({"user_id": {"$exists": False}}):
         {"$set": {"user_id": str(uuid.uuid4())}}
     )
 
+# Evento de mensagem
+@socketio.on('send_message')
+def handle_send_message(data):
+    room = data.get('room', 'global')
+    emit('receive_message', data, room=room)
+
+@socketio.on('join')
+def on_join(data):
+    room = data.get('room', 'global')
+    join_room(room)
+
+@socketio.on('leave')
+def on_leave(data):
+    room = data.get('room', 'global')
+    leave_room(room)
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    socketio.run(app, debug=True)
