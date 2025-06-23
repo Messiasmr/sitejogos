@@ -1,0 +1,104 @@
+.favoritos-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 32px auto 18px auto;
+    max-width: 700px;
+    justify-content: center;
+}
+.favoritos-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2.5px solid #6c5ce7;
+    background: #18151f;
+}
+.favoritos-username {
+    color: #a29bfe;
+    font-size: 2em;
+    font-weight: bold;
+}
+.favoritos-catalogo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
+    max-width: 900px;
+    margin: 0 auto 32px auto;
+}
+.favorito-card {
+    background: #232946;
+    border-radius: 10px;
+    padding: 12px;
+    width: 160px;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(44,44,84,0.10);
+    transition: box-shadow 0.2s, border 0.2s;
+    border: 2px solid transparent;
+}
+.favorito-card:hover {
+    border: 2px solid #6c5ce7;
+    box-shadow: 0 4px 18px rgba(108,92,231,0.18);
+}
+.favorito-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+.favorito-title {
+    color: #fff;
+    font-size: 1.05em;
+    margin-top: 4px;
+    word-break: break-word;
+}
+.favoritos-pagination {
+    text-align: center;
+    margin-bottom: 24px;
+}
+.favoritos-page {
+    display: inline-block;
+    background: #232946;
+    color: #a29bfe;
+    border-radius: 6px;
+    padding: 7px 16px;
+    margin: 0 4px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+}
+.favoritos-page.atual, .favoritos-page:hover {
+    background: #6c5ce7;
+    color: #fff;
+}
+.favoritos-amigos {
+    max-width: 900px;
+    margin: 0 auto 32px auto;
+    text-align: center;
+}
+.favoritos-amigo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 10px 10px 0;
+    background: #232946;
+    border-radius: 18px;
+    padding: 6px 16px;
+    color: #a29bfe;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+.favoritos-amigo-link:hover {
+    background: #6c5ce7;
+    color: #fff;
+}
+.favoritos-amigo-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid #a29bfe;
+}

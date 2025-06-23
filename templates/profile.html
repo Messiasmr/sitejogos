@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="responsive DesktopUI">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Comunidade :: {{ user['name'] or user['username'] }}</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/static/css/perfil.css"> "
+    <!-- Steam-like styles -->
+    <link href="https://community.fastly.steamstatic.com/public/shared/css/motiva_sans.css" rel="stylesheet" type="text/css">
+    <link href="https://community.fastly.steamstatic.com/public/shared/css/buttons.css" rel="stylesheet" type="text/css">
+    <link href="https://community.fastly.steamstatic.com/public/shared/css/shared_global.css" rel="stylesheet" type="text/css">
+    <link href="https://community.fastly.steamstatic.com/public/css/globalv2.css" rel="stylesheet" type="text/css">
+    <link href="https://community.fastly.steamstatic.com/public/css/skin_1/profilev2.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/static/perfil.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    
+</head>
+<body class="flat_page profile_page has_profile_background MidnightTheme responsive_page">
+    <a href="/" class="home-btn" style="display:flex;align-items:center;gap:8px;position:absolute;top:24px;left:32px;z-index:1000;">
+        <img src="/static/excitebike_logo.png" alt="Home" style="width:38px;height:38px;">
+    </a>
+    <div class="profile_header_bg">
+        <div class="profile_header_content">
+            <div style="display: flex; align-items: center; gap: 18px;">
+                <div class="profile_avatar">
+                    {% if user['profile_picture'] %}
+                        <img src="/{{ user['profile_picture'] }}" alt="Foto de Perfil">
+                    {% else %}
+                        <img src="https://community.cloudflare.steamstatic.com/public/images/avatars/ee/ee516b7c3d43b948efa027dc9d1fbff24696cd1_full.jpg" alt="Sem foto">
+                    {% endif %}
+                </div>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div class="profile_level">
+                        <div>{{ user['level'] or 1 }}</div>
+                        <span>Nível</span>
+                    </div>
+                    <!-- Botão adicionar amigo ao lado do avatar -->
+                    {% if logged_user and user['user_id'] != logged_user['user_id'] %}
+                        {% if logged_user['user_id'] in user.get('friend_requests', []) %}
+                            <button disabled style="margin-left:12px;">Solicitação enviada</button>
+                        {% elif user['user_id'] in logged_user.get('friends', []) %}
+                            <button disabled style="margin-left:12px;">Já são amigos</button>
+                        {% else %}
+                            <form action="/add_friend" method="post" style="display:inline; margin-left:12px;">
+                                <input type="hidden" name="friend_username" value="{{ user['username'] }}">
+                                <button type="submit">Adicionar amigo</button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            <div style="flex:1;">
+                <div class="profile_persona">{{ user['name'] or user['username'] }}</div>
+                <div class="profile_logout">
+                    {% if logged_user and user['user_id'] == logged_user['user_id'] %}
+                        <a href="/logout"><button>Sair</button></a>
+                    {% endif %}
+                </div>
+                <!-- Só mostra o formulário de edição se for o próprio usuário -->
+                {% if logged_user and user['user_id'] == logged_user['user_id'] %}
+                    <button id="show-edit-profile" style="margin-top:18px; background:#6c5ce7; color:#fff; border:none; border-radius:4px; padding:7px 18px; cursor:pointer;">Editar Perfil</button>
+                    <div id="edit-profile-box" style="display:none; margin-top:18px;">
+                        <form action="/update-profile" method="post" enctype="multipart/form-data" class="profile_edit_form">
+                            <label>Mudar foto de perfil:</label>
+                            <input type="file" name="profile_picture"><br><br>
+                            <label>Adicionar arte única:</label>
+                            <input type="file" name="unique_art"><br><br>
+                            <label>Resumo/Bio:</label>
+                            <input type="text" name="bio" value="{{ user['bio'] or '' }}" maxlength="120" style="width:90%;"><br><br>
+                            <label for="bg_image" style="color:#a29bfe;font-weight:bold;">Imagem de fundo:</label>
+                            <input type="file" name="bg_image" id="bg_image" accept="image/*" style="margin-bottom:6px;"><br><br>
+                            <button type="submit">Atualizar</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Exibir arte única se existir -->
+    {% if user['unique_art'] %}
+        <div class="art_section">
+            <h3 style="color:#fff;">Arte única</h3>
+            <img src="/{{ user['unique_art'] }}" alt="Arte única">
+        </div>
+    {% endif %}
+
+    <!-- Links rápidos -->
+    <div class="quick_links" style="margin-top:20px; text-align:center;">
+        <a href="favoritos">Jogos</a>
+        <a href="#">Amigos</a>
+        <a href="/search_friend">Buscar amigos</a>
+    </div>
+
+    <!-- Bio -->
+    <div class="profile_bio" style="text-align:center;">
+        {{ user['bio'] or 'Adicione um resumo ao seu perfil.' }}
+    </div>
+
+    <!-- Amigos -->
+    <div class="friends_section">
+        <h4 style="color:#fff;">Amigos</h4>
+        {% if user.get('friends') %}
+            <ul>
+            {% for friend in user['friends'] %}
+                <li>
+                    <a href="/profile?id={{ friend['user_id'] }}">
+                        {{ friend['name'] or friend['username'] }}
+                    </a>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <span style="color:#c7d5e0;">Nenhum amigo adicionado.</span>
+        {% endif %}
+    </div>
+
+    <!-- Favoritos -->
+    <div class="favoritos-section">
+        <h4 style="color:#fff; text-align:center;">Favoritos</h4>
+        {% if user.favorites %}
+        <div class="favoritos-carousel-container">
+            <button class="fav-arrow" id="fav-prev">&#8592;</button>
+            <div class="favoritos-carousel" id="favoritos-carousel">
+                <!-- Os cards serão inseridos via JS -->
+            </div>
+            <button class="fav-arrow" id="fav-next">&#8594;</button>
+        </div>
+        {% else %}
+            <span style="color:#c7d5e0; display:block; text-align:center;">Nenhum favorito ainda.</span>
+        {% endif %}
+    </div>
+    <script>
+    const favoritos = {{ (user.favorites or [])|tojson|safe }};
+    let favPage = 0;
+    const favPerPage = 5;
+
+    function renderFavoritos() {
+        const carousel = document.getElementById('favoritos-carousel');
+        carousel.innerHTML = '';
+        if (!favoritos || favoritos.length === 0) return;
+        const start = favPage * favPerPage;
+        const end = start + favPerPage;
+        favoritos.slice(start, end).forEach(fav => {
+            const card = document.createElement('div');
+            card.className = "favorito-card";
+            card.innerHTML = `
+                <img class="favorito-img" src="${fav.game_image}" alt="${fav.game_name}">
+                <div class="favorito-title">${fav.game_name}</div>
+            `;
+            carousel.appendChild(card);
+        });
+        document.getElementById('fav-prev').disabled = favPage === 0;
+        document.getElementById('fav-next').disabled = end >= favoritos.length;
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        if (favoritos && favoritos.length > 0) {
+            renderFavoritos();
+            document.getElementById('fav-prev').onclick = function() {
+                if (favPage > 0) { favPage--; renderFavoritos(); }
+            };
+            document.getElementById('fav-next').onclick = function() {
+                if ((favPage + 1) * favPerPage < favoritos.length) { favPage++; renderFavoritos(); }
+            };
+        }
+    });
+    </script>
+
+    <!-- Comentários no perfil -->
+    <div class="comments_section">
+        <h4 style="color:#fff;">Comentários</h4>
+        <form action="/comment" method="post" style="margin-bottom:20px;">
+            <textarea name="comment" placeholder="Deixe um comentário..." style="width:70%;" required></textarea>
+            <button type="submit">Comentar</button>
+        </form>
+        {% if comments %}
+            {% for comment in comments %}
+                <div class="comment">
+                    <span class="comment_author">{{ comment['author_name'] }}</span>: {{ comment['text'] }}
+                </div>
+            {% endfor %}
+        {% else %}
+            <span style="color:#c7d5e0;">Nenhum comentário ainda.</span>
+        {% endif %}
+    </div>
+
+    <!-- Notificações -->
+    <div id="notification-bell-container">
+        <button id="notification-bell" style="background:transparent; border:none; cursor:pointer; position:relative;">
+            <span style="font-size:2em; color:#6c5ce7;">&#128276;</span>
+            {% if logged_user and user['user_id'] == logged_user['user_id'] and user.get('friend_requests') %}
+                <span id="notif-count" style="position:absolute;top:0;right:0;background:#e17055;color:#fff;border-radius:50%;font-size:0.8em;padding:2px 6px;">{{ user.friend_requests|length }}</span>
+            {% endif %}
+        </button>
+        <div id="notif-dropdown">
+            <h4 style="color:#fff; margin-top:0;">Solicitações de amizade</h4>
+            {% if logged_user and user['user_id'] == logged_user['user_id'] and user.get('friend_requests') %}
+                {% for req_id in user['friend_requests'] %}
+                    {% set req_user = usuarios.find_one({'user_id': req_id}) %}
+                    <div style="margin-bottom:12px; display:flex; align-items:center;">
+                        <img src="/{{ req_user['profile_picture'] or 'static/default_avatar.png' }}" style="width:36px;height:36px;border-radius:50%;margin-right:10px;">
+                        <span style="color:#a29bfe;flex:1;">{{ req_user['name'] if req_user else 'Usuário desconhecido' }}</span>
+                        <form action="/respond-friend-request" method="post" style="display:inline;">
+                            <input type="hidden" name="from_user_id" value="{{ req_id }}">
+                            <button name="action" value="accept" type="submit" style="margin-right:4px;">Aceitar</button>
+                            <button name="action" value="reject" type="submit">Recusar</button>
+                        </form>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <span style="color:#c7d5e0;">Nenhuma notificação.</span>
+            {% endif %}
+        </div>
+    </div>
+   
+    <!-- Botão de mensagem centralizado -->
+    <button id="open-chat-fab" title="Abrir chat">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="#fff" style="background:#6c5ce7;border-radius:50%;padding:7px;">
+            <path d="M20 2H4C2.897 2 2 2.897 2 4v20l4-4h14c1.103 0 2-0.897 2-2V4C22 2.897 21.103 2 20 2zM20 16H5.172L4 17.172V4h16v12z"/>
+        </svg>
+    </button>
+
+    <style>
+    #open-chat-fab {
+        position: fixed;
+        left: 50%;
+        bottom: 36px;
+        transform: translateX(-50%);
+        z-index: 2100;
+        border: none;
+        background: none;
+        box-shadow: 0 2px 12px #0006;
+        cursor: pointer;
+        transition: background 0.2s;
+        outline: none;
+    }
+    #open-chat-fab:hover svg {
+        background: #2d2d7b;
+    }
+    </style>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fab = document.getElementById('open-chat-fab');
+        const chatPopup = document.getElementById('chat-popup');
+        if (fab && chatPopup) {
+            fab.onclick = function() {
+                chatPopup.style.display = chatPopup.style.display === 'block' ? 'none' : 'block';
+            };
+        }
+    });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bell = document.getElementById('notification-bell');
+        const dropdown = document.getElementById('notif-dropdown');
+        if (bell && dropdown) {
+            bell.onclick = function(e) {
+                e.stopPropagation();
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            };
+            document.body.addEventListener('click', function() {
+                dropdown.style.display = 'none';
+            });
+            dropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+    });
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('show-edit-profile');
+        const box = document.getElementById('edit-profile-box');
+        if (btn && box) {
+            btn.onclick = function() {
+                box.style.display = box.style.display === 'none' ? 'block' : 'none';
+                btn.textContent = box.style.display === 'block' ? 'Fechar edição' : 'Editar Perfil';
+            };
+        }
+    });
+    </script>
+    <script>
+    // Notificação de mensagem recebida (exemplo)
+    function showMessageNotification(remetente) {
+        document.getElementById('notif-avatar').src = remetente.foto;
+        document.getElementById('chat-header').textContent = 'Chat com ' + remetente.nome;
+        document.getElementById('msg-notification').style.display = 'block';
+    }
+    document.getElementById('msg-notification').onclick = function() {
+        const chat = document.getElementById('chat-popup');
+        chat.style.display = chat.style.display === 'block' ? 'none' : 'block';
+    };
+    document.addEventListener('click', function(e) {
+        if (!document.getElementById('chat-popup').contains(e.target) &&
+            !document.getElementById('msg-notification').contains(e.target)) {
+            document.getElementById('chat-popup').style.display = 'none';
+        }
+    });
+    const openChatBtn = document.getElementById('open-chat');
+    if (openChatBtn) {
+        openChatBtn.onclick = function() {
+            document.getElementById('chat-popup').style.display = 'block';
+        };
+    }
+    document.getElementById('chat-form').onsubmit = function(e) {
+        e.preventDefault();
+        const msg = document.getElementById('chat-input').value;
+        if (msg.trim()) {
+            const chat = document.getElementById('chat-messages');
+            chat.innerHTML += `<div><b>Você:</b> ${msg}</div>`;
+            document.getElementById('chat-input').value = '';
+            chat.scrollTop = chat.scrollHeight;
+        }
+    };
+    </script>
+   
+    <script src="/static/js/profile.js"></script>
+</body>
+</html>

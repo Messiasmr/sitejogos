@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mobilete Games - Sua Loja de Jogos Favorita</title>
+    <link rel="stylesheet" href="/static/style2.css">
+    <link rel="stylesheet" href="/static/pagination.css">
+    <style>
+        .store-title {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+        .store-title img {
+            width: 38px;
+            height: 38px;
+            margin-right: 8px;
+        }
+        .store-title span {
+            font-style: italic;
+            color: #a29bfe;
+            font-size: 2.2em;
+        }
+        .btn-login {
+            background: #6c5ce7;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 7px 18px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="/" class="store-title">
+                <img src="/static/excitebike_logo.png" alt="Logo">
+                <span>The Mobilete Games</span>
+            </a>
+            {% if logged_user %}
+                <a href="/profile">
+                    <img src="/{{ logged_user['profile_picture'] or 'static/default_avatar.png' }}" 
+                         alt="Perfil" 
+                         style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid #6c5ce7;">
+                </a>
+                <a href="/logout" style="margin-left:16px;">
+                    <button class="btn-login" style="background:#e17055;">Logout</button>
+                </a>
+            {% else %}
+                <a href="/login" style="margin-left:auto;">
+                    <button class="btn-login">Login</button>
+                </a>
+            {% endif %}
+        </div>
+    </header>
+    
+    <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Procure por um jogo...">
+        <button id="search-button">Buscar</button>
+    </div>
+    
+    <div class="games-container" id="games-container">
+        <div class="loading">Carregando jogos...</div>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+
+    <script>
+    // Variáveis globais
+    const gamesContainer = document.getElementById('games-container');
+    const pagination = document.getElementById('pagination');
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.getElementById('search-button');
+
+    // Variáveis de login e favoritos vindas do backend
+    const isLogged = {{ 'true' if logged_user else 'false' }};
+    const favoriteGames = {{ (logged_user.favorite_games if logged_user and logged_user.favorite_games else []) | tojson | safe }};
+
+        const gamesPerPage = 24;
+        let currentPage = 1;
+        let totalGames = 0;
+
+        async function loadGames(page = 1) {
+            gamesContainer.innerHTML = '<div class="loading">Carregando jogos...</div>';
+            const search = searchInput.value;
+            const response = await fetch(`/api/games?search=${encodeURIComponent(search)}&page=${page}`);
+            const data = await response.json();
+            const games = data.games;
+            totalGames = data.count;
+
+            gamesContainer.innerHTML = '';
+            if (!games.length) {
+                gamesContainer.innerHTML = '<div class="loading">Nenhum jogo encontrado.</div>';
+                pagination.innerHTML = '';
+                return;
+            }
+
+            games.forEach(game => {
+                const gameCard = document.createElement('div');
+                gameCard.className = 'game-card';
+
+                let favBtn = '';
+                if (isLogged) {
+                    const isFav = favoriteGames.includes(game.id);
+                    favBtn = `
+                        <form action="/toggle-favorite" method="post" style="display:inline;">
+                            <input type="hidden" name="game_id" value="${game.id}">
+                            <button type="submit" class="btn-roxo">
+                                ${isFav ? 'Remover dos Favoritos' : 'Favoritar'}
+                            </button>
+                        </form>
+                    `;
+                }
+
+                gameCard.innerHTML = `
+                    <img src="${game.image}" alt="${game.title}" class="game-image">
+                    <div class="game-info">
+                        <h3 class="game-title">${game.title}</h3>
+                        <div class="metacritic-score">Metacritic: ${game.metacritic || 'N/A'}</div>
+                        <div class="store-links">
+                            ${game.storeLinks.map(link => `
+                                <a href="${link.url}" target="_blank" class="store-link">
+                                    Comprar na ${link.store}
+                                </a>
+                            `).join('')}
+                        </div>
+                        ${favBtn}
+                    </div>
+                `;
+                gamesContainer.appendChild(gameCard);
+            });
+
+            generatePagination();
+        }
+
+        function generatePagination() {
+            pagination.innerHTML = '';
+            const totalPages = Math.ceil(totalGames / gamesPerPage);
+            if (totalPages <= 1) return;
+
+            if (currentPage > 1) {
+                const prevBtn = createPageButton('<', currentPage - 1);
+                pagination.appendChild(prevBtn);
+            }
+
+            addPageButton(1);
+
+            if (currentPage > 4) pagination.appendChild(createDots());
+
+            for (let i = Math.max(2, currentPage - 2); i <= Math.min(totalPages - 1, currentPage + 2); i++) {
+                addPageButton(i);
+            }
+
+            if (currentPage < totalPages - 3) pagination.appendChild(createDots());
+
+            if (totalPages > 1) addPageButton(totalPages);
+
+            if (currentPage < totalPages) {
+                const nextBtn = createPageButton('>', currentPage + 1);
+                pagination.appendChild(nextBtn);
+            }
+
+            function addPageButton(page) {
+                const btn = document.createElement('button');
+                btn.textContent = page;
+                btn.className = 'page-btn' + (page === currentPage ? ' active' : '');
+                btn.onclick = () => {
+                    currentPage = page;
+                    loadGames(currentPage);
+                };
+                pagination.appendChild(btn);
+            }
+
+            function createPageButton(label, targetPage) {
+                const btn = document.createElement('button');
+                btn.textContent = label;
+                btn.className = 'page-btn';
+                btn.onclick = () => {
+                    currentPage = targetPage;
+                    loadGames(currentPage);
+                };
+                return btn;
+            }
+
+            function createDots() {
+                const dots = document.createElement('span');
+                dots.textContent = '...';
+                dots.className = 'pagination-dots';
+                return dots;
+            }
+        }
+
+        searchButton.addEventListener('click', () => loadGames(1));
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loadGames(1);
+        });
+
+        loadGames();
+    </script>
+
+    {% if logged_user %}
+    <div id="notification-bell-container" style="position:fixed;top:24px;right:32px;z-index:2000;">
+        <button id="notification-bell" style="background:transparent; border:none; cursor:pointer; position:relative;">
+            <span style="font-size:2em; color:#6c5ce7;">&#128276;</span>
+            {% if logged_user.notifications %}
+                <span id="notif-count" style="position:absolute;top:0;right:0;background:#e17055;color:#fff;border-radius:50%;font-size:0.8em;padding:2px 6px;">{{ logged_user.notifications|length }}</span>
+            {% endif %}
+        </button>
+        <div id="notif-dropdown" style="display:none; position:absolute; right:0; top:36px; background:#1b2838; border-radius:8px; box-shadow:0 2px 12px rgba(44,44,84,0.13); width:340px; max-width:90vw; z-index:100; padding:18px;">
+            <h4 style="color:#fff; margin-top:0;">Notificações</h4>
+            {% if logged_user.notifications %}
+                {% for notif in logged_user.notifications if notif.type == 'promo' %}
+                    <div style="margin-bottom:12px;">
+                        <span style="color:#a29bfe;">Promoção: {{ notif.game_name|e }}</span>
+                        <span style="color:#00b894;">{{ notif.discount }}% OFF!</span>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <span style="color:#c7d5e0;">Nenhuma notificação.</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bell = document.getElementById('notification-bell');
+        const dropdown = document.getElementById('notif-dropdown');
+
+        if (bell && dropdown) {
+            bell.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            });
+
+            // Fecha o dropdown ao clicar fora
+            document.addEventListener('click', function() {
+                dropdown.style.display = 'none';
+            });
+
+            // Evita fechar o dropdown ao clicar dentro dele
+            dropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+    });
+    </script>
+    {% endif %}
+
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+    const gamesContainer = document.createElement('div');
+    gamesContainer.className = "games-container";
+    document.body.appendChild(gamesContainer);
+
+    function renderGames(games) {
+        gamesContainer.innerHTML = "";
+        if (!games || !games.results || games.results.length === 0) {
+            gamesContainer.innerHTML = "<p>Nenhum jogo encontrado.</p>";
+            return;
+        }
+        games.results.forEach(game => {
+            const card = document.createElement('div');
+            card.className = "game-card";
+            card.innerHTML = `
+                <img class="game-image" src="${game.background_image || ''}" alt="${game.name}">
+                <div class="game-title">${game.name}</div>
+                <div class="metacritic-score">${game.metacritic ? 'Nota: ' + game.metacritic : ''}</div>
+                <button class="fav-btn" data-id="${game.id}" data-name="${game.name}" data-img="${game.background_image || ''}">Favoritar ⭐</button>
+            `;
+            gamesContainer.appendChild(card);
+        });
+
+        document.querySelectorAll('.fav-btn').forEach(btn => {
+            btn.onclick = function() {
+                fetch('/favorite', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        game_id: btn.dataset.id,
+                        game_name: btn.dataset.name,
+                        game_image: btn.dataset.img
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        btn.textContent = "Favoritado ⭐";
+                        btn.disabled = true;
+                    } else {
+                        alert(data.error || "Erro ao favoritar");
+                    }
+                });
+            }
+        });
+    }
+
+    function fetchGames(search = "", page = 1) {
+        fetch(`/api/games?search=${encodeURIComponent(search)}&page=${page}`)
+            .then(res => res.json())
+            .then(data => renderGames(data))
+            .catch(() => {
+                gamesContainer.innerHTML = "<p>Erro ao carregar jogos.</p>";
+            });
+    }
+
+    fetchGames();
+});
+</script>
+</body>
+</html>

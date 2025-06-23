@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head><title>Notifications</title></head>
+<body>
+  <h2>Notifications</h2>
+  <ul>
+    {% for message in messages %}
+      <li>{{ mongo.db.users.find_one({'_id': message['sender_id']})['username'] }}: {{ message['message'] }}</li>
+    {% endfor %}
+  </ul>
+  <a href="{{ url_for('index') }}">Back to Profile</a>
+</body>
+</html>
