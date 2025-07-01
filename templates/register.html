@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - The Mobilete Games</title>
+    <link rel="stylesheet" href="/static/css/registro.css">
+    <style>
+        .file-label {
+            display: inline-block;
+            background: linear-gradient(90deg, #6c5ce7 60%, #a29bfe 100%);
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.18s;
+            box-shadow: 0 2px 8px #6c5ce733;
+            font-size: 1.08em;
+            margin-top: 2px;
+            margin-bottom: 2px;
+            text-align: center;
+        }
+        .file-label:hover {
+            background: linear-gradient(90deg, #2d2d7b 60%, #6c5ce7 100%);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Registro</h1>
+    </header>
+    
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="flashes">
+              {% for category, message in messages %}
+                <li class="flash flash-{{ category }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+        
+        <form action="/register" method="post" enctype="multipart/form-data" class="form-container">
+            <div class="input-row">
+                <input type="text" id="name" name="name" placeholder="Nome" required="">
+            </div>
+            <div class="input-row">
+                <input type="text" id="username" name="username" placeholder="Usuário" required autocomplete="off">
+                <div id="username-popup" class="input-popup"></div>
+            </div>
+            <div class="input-row">
+                <input type="email" id="email" name="email" placeholder="E-mail" required autocomplete="off">
+                <div id="email-popup" class="input-popup"></div>
+            </div>
+            <div class="input-row">
+                <input type="password" id="password" name="password" placeholder="Senha" required="" autocomplete="off">
+                <button type="button" id="toggle-password" style="margin-left:8px; background:none; border:none; color:#a29bfe; cursor:pointer; font-size:1.1em;">👁️</button>
+            </div>
+            <div class="input-row">
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirmar senha" required autocomplete="off">
+            </div>
+            <div class="input-row">
+                <label for="profile_picture" class="file-label">
+                    <span class="file-icon">📷</span>
+                    <span id="file-label-text">Escolher foto</span>
+                    <input type="file" id="profile_picture" name="profile_picture" accept="image/*" style="display:none;">
+                </label>
+            </div>
+            <button type="submit">Registrar</button>
+        </form>
+        <p>Já tem uma conta? <a href="/login">Faça login</a>.</p>
+    </main>
+    
+    {% if logged_user and user['user_id'] == logged_user['user_id'] and logged_user.friend_requests %}
+    <div class="friend-requests">
+        <h4>Solicitações de amizade</h4>
+        <ul>
+        {% for req_id in logged_user.friend_requests %}
+            {% set req_user = usuarios.find_one({'user_id': req_id}) %}
+            <li>
+                <img src="/{{ req_user['profile_picture'] or 'static/default_avatar.png' }}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+                {{ req_user['name'] or req_user['username'] }}
+                <form action="/respond-friend-request" method="post" style="display:inline;">
+                    <input type="hidden" name="from_user_id" value="{{ req_user['user_id'] }}">
+                    <button type="submit" name="action" value="accept">Aceitar</button>
+                    <button type="submit" name="action" value="reject">Recusar</button>
+                </form>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    <script>
+const usernameInput = document.getElementById('username');
+const emailInput = document.getElementById('email');
+const usernamePopup = document.getElementById('username-popup');
+const emailPopup = document.getElementById('email-popup');
+
+function showPopup(popup, msg) {
+    popup.innerHTML = msg;
+    popup.style.display = 'block';
+    popup.style.opacity = 1;
+}
+function hidePopup(popup) {
+    popup.style.display = 'none';
+    popup.style.opacity = 0;
+}
+
+// Username validation
+usernameInput.addEventListener('input', function() {
+    const username = usernameInput.value.trim();
+    if (!username) {
+        hideUsernamePopup();
+        return;
+    }
+    fetch(`/check_username?username=${encodeURIComponent(username)}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.available) {
+                let suggestion = data.suggestion || (username + Math.floor(Math.random()*1000));
+                showUsernamePopup(`
+                    Nome de usuário indisponível.<br>
+                    <span class="username-suggestion" onclick="chooseSuggestion('${suggestion}')">${suggestion}</span>
+                    <br><small>Toque para aceitar sugestão</small>
+                `);
+            } else {
+                hideUsernamePopup();
+            }
+        });
+});
+
+window.chooseSuggestion = function(suggestion) {
+    usernameInput.value = suggestion;
+    hideUsernamePopup();
+    usernameInput.focus();
+};
+
+// Email validation
+emailInput.addEventListener('input', function() {
+    const email = emailInput.value.trim();
+    if (!email) {
+        hidePopup(emailPopup);
+        return;
+    }
+    fetch(`/check_email?email=${encodeURIComponent(email)}`)
+        .then(res => res.json())
+        .then data => {
+            if (!data.available) {
+                showPopup(emailPopup, `E-mail já cadastrado.`);
+            } else {
+                hidePopup(emailPopup);
+            }
+        });
+});
+
+const passwordInput = document.getElementById('password');
+const togglePassword = document.getElementById('toggle-password');
+togglePassword.addEventListener('click', function() {
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        togglePassword.textContent = "🙈";
+    } else {
+        passwordInput.type = "password";
+        togglePassword.textContent = "👁️";
+    }
+});
+
+const profileInput = document.getElementById('profile_picture');
+const fileLabelText = document.getElementById('file-label-text');
+profileInput.addEventListener('change', function() {
+    if (profileInput.files.length > 0) {
+        fileLabelText.textContent = profileInput.files[0].name;
+    } else {
+        fileLabelText.textContent = "Escolher foto de perfil";
+    }
+});
+
+// Confirmação de senha
+const form = document.querySelector('.form-container');
+if (form) {
+    form.addEventListener('submit', function(e) {
+        const pwd = document.getElementById('password').value;
+        const cpwd = document.getElementById('confirm_password').value;
+        if (pwd !== cpwd) {
+            alert('As senhas não coincidem!');
+            e.preventDefault();
+        }
+    });
+}
+</script>
+</body>
+</html>

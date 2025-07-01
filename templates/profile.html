@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="responsive DesktopUI">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Comunidade :: {{ user['name'] or user['username'] }}</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/static/css/perfil.css">
+    <link rel="stylesheet" href="/static/perfil.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/style2.css">
+</head>
+<body class="flat_page profile_page has_profile_background MidnightTheme responsive_page">
+    {% if user.background_image %}
+    <div id="profile-bg-cover"
+         style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-1;
+                background: url('{% if user.background_image|length == 24 %}/imagem/{{ user.background_image }}{% else %}/{{ user.background_image }}{% endif %}') center center/cover no-repeat;">
+    </div>
+    {% endif %}
+    <div class="profile_header_bg">
+        <div class="profile-header-actions">
+            <!-- Sino de notificação -->
+            {% if logged_user %}
+            <div class="top-right-actions">
+                <div id="notification-bell-container">
+                    <button id="notification-bell" style="background:transparent; border:none; cursor:pointer; position:relative;">
+                        <span style="font-size:2em; color:#6c5ce7;">&#128276;</span>
+                        {% set notif_count = logged_user.friend_requests|length if logged_user and logged_user.friend_requests else 0 %}
+                        {% if notif_count > 0 %}
+                            <span id="notif-count" style="position:absolute;top:0;right:0;background:#e17055;color:#fff;border-radius:50%;font-size:0.8em;padding:2px 6px;">{{ notif_count }}</span>
+                        {% endif %}
+                    </button>
+                    <div id="notif-dropdown" style="display:none; position:absolute; right:0; top:36px; background:#1b2838; border-radius:10px; box-shadow:0 4px 24px #232946cc; width:340px; max-width:90vw; z-index:100; padding:22px 20px 18px 20px;">
+                        <h4 style="color:#fff; margin:0 0 14px 0; font-size:1.18em; font-weight:600; letter-spacing:0.5px;">Notificações</h4>
+                        {% if logged_user and logged_user.friend_requests %}
+                            <div class="notif-section">
+                                <h5 style="color:#fff;">Solicitações de amizade</h5>
+                                <ul>
+                                {% for req_id in logged_user.friend_requests %}
+                                    {% set req_user = usuarios.find_one({'user_id': req_id}) %}
+                                    <li style="margin-bottom:10px;">
+                                        <img src="{% if req_user['profile_picture'] %}/imagem/{{ req_user['profile_picture'] }}{% else %}/static/default_avatar.png{% endif %}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">
+                                        {{ req_user['name'] or req_user['username'] }}
+                                        <form action="/respond-friend-request" method="post" style="display:inline;">
+                                            <input type="hidden" name="from_user_id" value="{{ req_user['user_id'] }}">
+                                            <button type="submit" name="action" value="accept">Aceitar</button>
+                                            <button type="submit" name="action" value="reject">Recusar</button>
+                                        </form>
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                            </div>
+                        {% else %}
+                            <span style="color:#c7d5e0; font-size:1em;">Nenhuma notificação no momento.</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- outros itens, se houver -->
+            </div>
+            {% endif %}
+            <!-- Menu hambúrguer -->
+            <style>
+</style>
+<div id="profile-menu-hamburger">
+    <button id="profile-menu-btn" aria-label="Abrir menu">
+        <span class="menu-dots">
+            <span class="menu-dot"></span>
+            <span class="menu-dot"></span>
+            <span class="menu-dot"></span>
+        </span>
+    </button>
+    <div id="profile-menu-dropdown">
+        <div class="profile-menu-list">
+            {% if logged_user and user['user_id'] == logged_user['user_id'] %}
+                <button type="button" class="profile-menu-item" id="edit-profile-btn">Editar perfil</button>
+                <div class="profile-menu-item profile-menu-settings" tabindex="0" style="position:relative;">
+                    Configurações
+                    <div class="settings-dropdown" style="display:none; position:absolute; left:100%; top:0; background:#232946; border-radius:10px; box-shadow:0 2px 12px #23294688; min-width:180px; z-index:200;">
+                        <button type="button" class="settings-option" id="change-password-btn">Trocar senha</button>
+                        <button type="button" class="settings-option" id="privacy-btn">Privacidade</button>
+                        <button type="button" class="settings-option" id="notifications-btn">Notificações</button>
+                        <button type="button" class="settings-option" id="theme-btn">Tema</button>
+                    </div>
+                </div>
+            {% elif logged_user and user['user_id'] != logged_user['user_id'] %}
+                {% if is_friend %}
+                    <form action="/remove_friend" method="post" style="margin:0;">
+                        <input type="hidden" name="friend_id" value="{{ user.user_id }}">
+                        <button type="submit" class="profile-menu-item profile-menu-btn-remove">Remover amigo</button>
+                    </form>
+                {% elif already_requested %}
+                    <form action="/cancel_friend_request" method="post" style="margin:0;">
+                        <input type="hidden" name="friend_id" value="{{ user.user_id }}">
+                        <button type="submit" class="profile-menu-item">Cancelar solicitação</button>
+                    </form>
+                {% else %}
+                    <form action="/add_friend" method="post" style="margin:0;">
+                        <input type="hidden" name="friend_id" value="{{ user.user_id }}">
+                        <button type="submit" class="profile-menu-item profile-menu-btn-add">Adicionar amigo</button>
+                    </form>
+                {% endif %}
+                <button type="button" id="send-message-btn" class="profile-menu-item profile-menu-btn-message">Enviar mensagem</button>
+                <button type="button" id="report-profile-btn" class="profile-menu-item profile-menu-btn-report">Denunciar perfil</button>
+            {% endif %}
+            <!-- Botão de sair sempre visível para usuários logados -->
+            {% if logged_user %}
+                <a href="/logout" class="profile-menu-item">Sair</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+        </div>
+        <div class="profile_header_content">
+            <div class="profile_avatar_wrapper">
+                <div class="profile_avatar">
+                    <img src="{% if user['profile_picture'] %}/imagem/{{ user['profile_picture'] }}{% else %}/static/default_avatar.png{% endif %}" alt="Foto de Perfil" class="profile-picture">
+                </div>
+            </div>
+            <div class="profile_infos">
+                <div class="profile_persona">
+                    <span class="profile-username">{{ user['name'] or user['username'] }}</span>
+                    {% if user.bio %}
+                        <span class="profile-bio">{{ user.bio | safe }}</span>
+                    {% endif %}
+                </div>
+                {% if logged_user and user['user_id'] == logged_user['user_id'] %}
+                    <div id="edit-profile-box" style="display:none;">
+                        <form action="/update-profile" method="POST" enctype="multipart/form-data" class="edit-profile-form">
+                            <label for="name">Nome</label>
+                            <input type="text" id="name" name="name" value="{{ user.name }}" required>
+                            <label for="bio">Resumo/Bio</label>
+                            <input type="text" name="bio" id="bio" value="{{ user['bio'] or '' }}" maxlength="120">
+                            <div class="edit-profile-upload-row">
+                                <label for="profile_picture" class="edit-profile-upload-label" title="Foto de Perfil">
+                                    <span class="upload-icon-img">
+                                        <!-- Ícone de usuário SVG -->
+                                        <svg width="32" height="32" fill="none" viewBox="0 0 24 24">
+                                            <circle cx="12" cy="8" r="4" fill="#6c5ce7"/>
+                                            <ellipse cx="12" cy="17" rx="7" ry="4" fill="#a29bfe"/>
+                                        </svg>
+                                    </span>
+                                    <span class="upload-label-text">Perfil</span>
+                                    <input type="file" name="profile_picture" id="profile_picture" class="edit-profile-upload-input">
+                                </label>
+                                <label for="unique_art" class="edit-profile-upload-label" title="Arte única">
+                                    <span class="upload-icon-img">
+                                        <!-- Ícone de paleta SVG -->
+                                        <svg width="32" height="32" fill="none" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                                          <ellipse cx="16" cy="16" rx="13" ry="10" fill="#ffe066"/>
+                                          <circle cx="11" cy="14" r="2" fill="#6c5ce7"/>
+                                          <circle cx="21" cy="14" r="2" fill="#00b894"/>
+                                          <circle cx="16" cy="21" r="2" fill="#ff4e50"/>
+                                          <circle cx="22" cy="20" r="1.5" fill="#232946"/>
+                                          <circle cx="10" cy="20" r="1.5" fill="#a29bfe"/>
+                                        </svg>
+                                    </span>
+                                    <span class="upload-label-text">Arte</span>
+                                    <input type="file" name="unique_art" id="unique_art" class="edit-profile-upload-input">
+                                </label>
+                                <label for="bg_image" class="edit-profile-upload-label" title="Imagem de fundo">
+                                    <span class="upload-icon-img">
+                                        <!-- Ícone de paisagem SVG -->
+                                        <svg width="32" height="32" fill="none" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                                          <rect x="4" y="8" width="24" height="16" rx="4" fill="#232946"/>
+                                          <circle cx="10" cy="14" r="3" fill="#ffe066"/>
+                                          <ellipse cx="20" cy="22" rx="6" ry="3" fill="#00b894" fill-opacity="0.7"/>
+                                          <path d="M4 24l7-7 5 5 6-8 6 10" stroke="#6c5ce7" stroke-width="2" fill="none"/>
+                                          <rect x="4" y="8" width="24" height="16" rx="4" stroke="#a29bfe" stroke-width="1.5"/>
+                                        </svg>
+                                    </span>
+                                    <span class="upload-label-text">Fundo</span>
+                                    <input type="file" name="bg_image" id="bg_image" accept="image/*" class="edit-profile-upload-input">
+                                </label>
+                            </div>
+                            <button type="submit">Atualizar</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if user['unique_art'] %}
+        <div class="art_section">
+            <h3 style="color:#fff;">Arte única</h3>
+            <img src="{% if user['unique_art'] and user['unique_art']|length == 24 %}/imagem/{{ user['unique_art'] }}{% else %}/{{ user['unique_art'] or 'static/default_art.png' }}{% endif %}" alt="Arte única">
+        </div>
+    {% endif %}
+
+
+    <div class="favoritos-section">
+        <h4 style="color:#fff; text-align:center;">Favoritos</h4>
+        {% if user.favorites %}
+            <div class="favoritos-carousel-container">
+                <button class="fav-arrow" id="fav-prev" aria-label="Anterior">
+  <svg viewBox="0 0 24 24"><path d="M15.5 19.5L9 12l6.5-7.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+                <div class="favoritos-carousel" id="favoritos-carousel"></div>
+                <button class="fav-arrow" id="fav-next" aria-label="Próximo">
+  <svg viewBox="0 0 24 24"><path d="M8.5 4.5L15 12l-6.5 7.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+            </div>
+        {% else %}
+            <span style="color:#c7d5e0; display:block; text-align:center;">Nenhum favorito ainda.</span>
+        {% endif %}
+    </div>
+    <script>
+    const favoritos = {{ user.get('favorites', []) | tojson | safe }};
+    let favPage = 0;
+    const favPerPage = 5;
+    function renderFavoritos() {
+        const carousel = document.getElementById('favoritos-carousel');
+        carousel.innerHTML = '';
+        if (!favoritos || favoritos.length === 0) return;
+        const start = favPage * favPerPage;
+        const end = start + favPerPage;
+        favoritos.slice(start, end).forEach(fav => {
+            const card = document.createElement('div');
+            card.className = "favorito-card";
+            card.innerHTML = `
+                <img class="favorito-img" src="${fav.game_image}" alt="${fav.game_name}">
+                <div class="favorito-title">${fav.game_name}</div>
+            `;
+            carousel.appendChild(card);
+        });
+        document.getElementById('fav-prev').disabled = favPage === 0;
+        document.getElementById('fav-next').disabled = end >= favoritos.length;
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        if (favoritos && favoritos.length > 0) {
+            renderFavoritos();
+            document.getElementById('fav-prev').onclick = function() {
+                if (favPage > 0) { favPage--; renderFavoritos(); }
+            };
+            document.getElementById('fav-next').onclick = function() {
+                if ((favPage + 1) * favPerPage < favoritos.length) { favPage++; renderFavoritos(); }
+            };
+        }
+    });
+    </script>
+
+    <div class="comments_section">
+        <h4 style="color:#fff;">Comentários</h4>
+        <form action="/comment" method="post" class="comment-form">
+            <input type="hidden" name="profile_id" value="{{ user.user_id }}">
+            <textarea name="comment" required placeholder="Deixe um comentário..."></textarea>
+            <button type="submit" class="comment-btn">
+    <span>Comentar</span>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+</button>
+        </form>
+        {% if comments %}
+            {% for comment in comments|reverse %}
+                <div class="comment-card">
+                    <a href="/profile/{{ comment.author_id }}">
+                       <img class="comment-avatar" src="/{{ comment.author_profile_picture }}" alt="Avatar">
+                    </a>
+                    <div class="comment-content">
+                        <span class="comment-author">
+                            {{ comment.author_name if comment.author_name else (comment.author_username if comment.author_username else 'Usuário') }}
+                            <span class="comment-id" style="font-size:0.75em; color:#a29bfe; opacity:0.8; margin-left:6px;">
+    #{{ comment.author_id[:3] }}
+</span>
+                        </span>
+                        <span class="comment-date">
+                            {% if comment.timestamp %}{{ comment.timestamp.strftime('%d/%m/%Y %H:%M') }}{% endif %}
+                        </span>
+                        <div class="comment-text">{{ comment.text }}</div>
+                    </div>
+                    <div class="comment-actions">
+            <form method="POST" action="/delete_comment/{{ user.user_id }}/{{ loop.revindex0 }}" style="display:inline;">
+                <button class="comment-action-btn" title="Apagar comentário" type="submit" onclick="return confirm('Apagar este comentário?')">
+                    🗑️
+                </button>
+            </form>
+            <!-- ...outros botões... -->
+        </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <span style="color:#c7d5e0;">Nenhum comentário ainda.</span>
+        {% endif %}
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="flash-popup">
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+        <script>
+          setTimeout(function() {
+            var popup = document.getElementById('flash-popup');
+            if (popup) popup.style.display = 'none';
+          }, 2500);
+        </script>
+      {% endif %}
+    {% endwith %}
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bell = document.getElementById('notification-bell');
+        const dropdown = document.getElementById('notif-dropdown');
+        if (bell && dropdown) {
+            bell.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            });
+            document.addEventListener('click', function() {
+                dropdown.style.display = 'none';
+            });
+            dropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuBtn = document.getElementById('profile-menu-btn');
+        const menuDropdown = document.getElementById('profile-menu-dropdown');
+        if (menuBtn && menuDropdown) {
+            menuBtn.onclick = function(e) {
+                e.stopPropagation();
+                menuDropdown.style.display = menuDropdown.style.display === 'block' ? 'none' : 'block';
+            };
+            document.body.addEventListener('click', function() {
+                menuDropdown.style.display = 'none';
+            });
+            menuDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+        const btn = document.getElementById('show-edit-profile-menu');
+        const box = document.getElementById('edit-profile-box');
+        if (btn && box) {
+            btn.onclick = function() {
+                box.style.display = box.style.display === 'none' ? 'block' : 'none';
+                btn.textContent = box.style.display === 'block' ? 'Fechar edição' : 'Editar Perfil';
+            };
+        }
+        document.querySelectorAll('.profile-username').forEach(function(el) {
+            el.addEventListener('mousemove', function(e) {
+                const rect = el.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                el.style.setProperty('--ring-x', x + '%');
+                el.style.setProperty('--ring-y', y + '%');
+            });
+            el.addEventListener('mouseleave', function() {
+                el.style.setProperty('--ring-x', '50%');
+                el.style.setProperty('--ring-y', '50%');
+            });
+        });
+        // Flash fade out
+        const flashes = document.querySelectorAll('.flash');
+        if (flashes.length) {
+            setTimeout(function() {
+                flashes.forEach(function(flash) {
+                    flash.classList.add('hide');
+                });
+            }, 3000);
+        }
+    });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
+    {% include 'partials/chatbot.html' %}
+    <img id="bg-analyze-img" src="{{ user['bg_image'] or 'static/default_bg.jpg' }}" style="display:none;" crossorigin="anonymous">
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bgImg = document.getElementById('bg-analyze-img');
+        if (bgImg && window.ColorThief) {
+            const colorThief = new ColorThief();
+            function rgbToHex(r, g, b) {
+                return "#" + [r,g,b].map(x => x.toString(16).padStart(2, '0')).join('');
+            }
+            function applyBgColor() {
+                try {
+                    const color = colorThief.getColor(bgImg);
+                    const hex = rgbToHex(...color);
+                    document.documentElement.style.setProperty('--profile-main-color', hex);
+                } catch (e) {
+                    document.documentElement.style.setProperty('--profile-main-color', '#6c5ce7');
+                }
+            }
+            if (bgImg.complete) {
+                applyBgColor();
+            } else {
+                bgImg.addEventListener('load', applyBgColor);
+            }
+        }
+    });
+    </script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Exibir alerta para "Enviar Mensagem"
+    var sendMsg = document.getElementById('send-message-btn');
+    if(sendMsg) {
+        sendMsg.addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Função de mensagem será implementada em breve!');
+        });
+    }
+
+    // Exibir alerta para "Denunciar Perfil"
+    var reportBtn = document.getElementById('report-profile-btn');
+    if(reportBtn) {
+        reportBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Função de denúncia será implementada em breve!');
+        });
+    }
+});
+</script>
+<script>
+// Torne global:
+function futureFeature(e) {
+    if (e) e.preventDefault();
+    alert('Função será implementada em breve!');
+}
+function blockUser(userId) {
+    alert('Função de bloquear usuário será implementada!');
+}
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Verifique se as rotas existem, se não, adicione o alerta
+    var editProfileBtn = document.getElementById('edit-profile-btn');
+    var settingsBtn = document.getElementById('settings-btn');
+
+    // Se você ainda não implementou essas rotas, ative o alerta:
+    if (editProfileBtn) {
+        editProfileBtn.addEventListener('click', function(e) {
+            // Se não existir a rota, descomente a linha abaixo:
+            // futureFeature(e);
+        });
+    }
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', function(e) {
+            // Se não existir a rota, descomente a linha abaixo:
+            // futureFeature(e);
+        });
+    }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var editProfileBtn = document.getElementById('edit-profile-btn');
+    var editProfileBox = document.getElementById('edit-profile-box');
+    if (editProfileBtn && editProfileBox) {
+        editProfileBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Alterna a exibição do box
+            if (editProfileBox.style.display === 'block') {
+                editProfileBox.style.display = 'none';
+            } else {
+                editProfileBox.style.display = 'block';
+                // Scroll até o box, se quiser:
+                editProfileBox.scrollIntoView({behavior: "smooth", block: "center"});
+            }
+        });
+    }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mostrar submenu de configurações
+    const settingsBtn = document.querySelector('.profile-menu-settings');
+    const settingsDropdown = document.querySelector('.settings-dropdown');
+    if (settingsBtn && settingsDropdown) {
+        settingsBtn.addEventListener('mouseenter', () => {
+            settingsDropdown.style.display = 'flex';
+        });
+        settingsBtn.addEventListener('mouseleave', () => {
+            settingsDropdown.style.display = 'none';
+        });
+        settingsBtn.addEventListener('focus', () => {
+            settingsDropdown.style.display = 'flex';
+        });
+        settingsBtn.addEventListener('blur', () => {
+            settingsDropdown.style.display = 'none';
+        });
+    }
+
+    // Alerta para opções "em breve"
+    ['change-password-btn', 'privacy-btn', 'notifications-btn', 'theme-btn'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            btn.addEventListener('click', function() {
+                alert('Função será implementada em breve!');
+            });
+        }
+    });
+});
+</script>
+<div class="profile-side-menu" id="profile-side-menu">
+        <a href="/friends/{{ user.user_id }}" class="profile-side-link" title="Amigos">
+        <span class="side-icon">👥</span>
+        <span class="side-text">Amigos</span>
+    </a>
+    <a href="/favoritos" class="profile-side-link" title="Jogos">
+        <span class="side-icon">🎮</span>
+        <span class="side-text">Favoritos</span>
+    </a>
+    <a href="/search_friend" class="profile-side-link" title="Buscar amigos">
+        <span class="side-icon">🔍</span>
+        <span class="side-text">Buscar amigos</span>
+    </a>
+</div>
+<script>
+}
+function blockUser(userId) {
+    if (confirm('Deseja bloquear este usuário?')) {
+        // Implemente a chamada AJAX ou redirecione para uma rota de bloqueio
+        alert('Função de bloquear usuário será implementada!');
+    }
+}
+</script>
+<a href="/" class="home-btn" title="Voltar para a página inicial">
+    <span class="home-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M3 11.5L12 4L21 11.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M5 10.5V20H19V10.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <rect x="9" y="15" width="6" height="5" rx="1.5" fill="#fff" opacity="0.7"></rect>
+        </svg>
+    </span>
+</a>
+<!-- <div class="user-id-info" style="text-align:right; color:#a29bfe; font-size:0.98em; opacity:0.8;">
+    ID #{{ user['user_id'] }}
+</div> -->
+</body>
+</html>
+<script>
+const usernameInput = document.getElementById('username');
+const popup = document.getElementById('username-popup');
+let popupTimeout = null;
+
+usernameInput.addEventListener('input', function() {
+    clearTimeout(popupTimeout);
+    const username = usernameInput.value.trim();
+    if (!username) {
+        popup.style.display = 'none';
+        return;
+    }
+    fetch(`/check_username?username=${encodeURIComponent(username)}`)
+        .then(res => res.json())
+        .then data => {
+            if (!data.available) {
+                let suggestion = data.suggestion || (username + Math.floor(Math.random()*1000));
+                popup.innerHTML = `
+                    Nome de usuário indisponível.<br>
+                    <span class="username-suggestion" onclick="chooseSuggestion('${suggestion}')">${suggestion}</span>
+                    <br><small>Toque para aceitar sugestão</small>
+                `;
+                popup.style.display = 'block';
+                popup.style.opacity = 1;
+                // Some após 2 segundos
+                popupTimeout = setTimeout(() => {
+                    popup.style.opacity = 0;
+                    setTimeout(() => popup.style.display = 'none', 500);
+                }, 2000);
+            } else {
+                popup.style.display = 'none';
+            }
+        });
+});
+
+window.chooseSuggestion = function(suggestion) {
+    usernameInput.value = suggestion;
+    popup.style.display = 'none';
+};
+</script>

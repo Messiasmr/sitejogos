@@ -1,0 +1,113 @@
+<!-- Botão flutuante arrastável -->
+<button id="story-chat-fab" title="Falar com IA"
+    style="position:fixed;bottom:36px;right:36px;z-index:2147483647;pointer-events:auto;opacity:0.3;transition:opacity 0.3s;background:#6c5ce7;border:none;border-radius:50%;width:56px;height:56px;cursor:pointer;">
+    <span style="font-size:1.8em;color:#fff;position:relative;left:0;top:0;">💬</span>
+</button>
+
+<!-- Chat popup -->
+<div id="story-chat-popup"
+    style="display:none;position:fixed;right:-2px;bottom:100px;width:340px;max-width:95vw;background:#222;border-radius:12px;box-shadow:0 2px 12px #000a;z-index:2147483647;pointer-events:auto;">
+    <div style="background:#ff0000;color:#fff;padding:12px 16px 12px 16px;border-radius:12px 12px 0 0;font-weight:bold;position:relative;">
+        Mobilete Chat
+        <button id="close-chat-popup"
+            style="position:absolute;top:-2px;right:3px;background:none;border:none;color:#2196f3;font-size:1.7em;cursor:pointer;line-height:1;">&times;</button>
+    </div>
+    <div id="story-chat-messages" style="height:220px;overflow-y:auto;padding:12px;background:#18151f;"></div>
+    <form id="story-chat-form" style="display:flex;gap:6px;padding:12px;background:#18151f;border-radius:0 0 12px 12px;">
+        <input id="story-chat-input" type="text" placeholder="Peça uma história de jogo..." style="flex:1;padding:8px;border-radius:4px;border:1px solid #6c5ce7;">
+        <button type="submit" style="background:#ff0400c6;color:#fff;border:none;border-radius:4px;padding:8px 14px;">Enviar</button>
+    </form>
+</div>
+<script>
+const fab = document.getElementById('story-chat-fab');
+const popup = document.getElementById('story-chat-popup');
+const form = document.getElementById('story-chat-form');
+const input = document.getElementById('story-chat-input');
+const messages = document.getElementById('story-chat-messages');
+const closeBtn = document.getElementById('close-chat-popup');
+
+// Arrastar botão flutuante
+let isDragging = false, offsetX = 0, offsetY = 0;
+
+fab.onmousedown = function(e) {
+    isDragging = true;
+    offsetX = e.clientX - fab.getBoundingClientRect().left;
+    offsetY = e.clientY - fab.getBoundingClientRect().top;
+    document.body.style.userSelect = "none";
+};
+document.onmousemove = function(e) {
+    if (isDragging) {
+        fab.style.left = (e.clientX - offsetX) + "px";
+        fab.style.top = (e.clientY - offsetY) + "px";
+        fab.style.right = "auto";
+        fab.style.bottom = "auto";
+    }
+};
+document.onmouseup = function() {
+    isDragging = false;
+    document.body.style.userSelect = "";
+};
+
+// Abrir/fechar popup na posição do botão
+fab.onclick = function(e) {
+    if (isDragging) return; // Não abre se estiver arrastando
+    const rect = fab.getBoundingClientRect();
+    popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+    if (popup.style.display === 'block') {
+        // Centraliza o popup em relação ao botão
+        popup.style.left = (rect.left + rect.width / 2 - popup.offsetWidth / 2) + "px";
+        popup.style.top = (rect.top - popup.offsetHeight - 10 > 0 ? rect.top - popup.offsetHeight - 10 : rect.bottom + 10) + "px";
+        popup.style.right = "auto";
+        popup.style.bottom = "auto";
+    }
+};
+
+// Fechar popup ao clicar no X
+closeBtn.onclick = function() {
+    popup.style.display = 'none';
+};
+
+// Função para simular digitação da IA
+function typeWriter(element, text, speed = 25) {
+    let i = 0;
+    function typing() {
+        if (i < text.length) {
+            element.innerHTML += text.charAt(i);
+            i++;
+            element.scrollTop = element.scrollHeight;
+            setTimeout(typing, speed);
+        }
+    }
+    typing();
+}
+
+// Enviar mensagem para a IA (AJAX para endpoint Flask)
+form.onsubmit = async function(e) {
+    e.preventDefault();
+    const userMsg = input.value.trim();
+    if (!userMsg) return;
+    messages.innerHTML += `<div style="color:#a29bfe;margin-bottom:8px;"><b>Você:</b> ${userMsg}</div>`;
+    input.value = '';
+    messages.scrollTop = messages.scrollHeight;
+
+    // Mostra indicador de "IA está digitando..."
+    const iaDiv = document.createElement('div');
+    iaDiv.style.color = "#fff";
+    iaDiv.style.marginBottom = "8px";
+    iaDiv.innerHTML = "<b>IA:</b> <span id='ia-typing'></span>";
+    messages.appendChild(iaDiv);
+    messages.scrollTop = messages.scrollHeight;
+
+    // Chama o endpoint Flask para obter resposta da IA
+    const resp = await fetch('/api/storybot', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: userMsg})
+    });
+    const data = await resp.json();
+
+    // Simula digitação
+    const typingSpan = iaDiv.querySelector('#ia-typing');
+    typeWriter(typingSpan, data.reply, 18); // 18ms por letra, ajuste se quiser mais rápido/lento
+};
+</script>

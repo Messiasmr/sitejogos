@@ -1,0 +1,201 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap');
+
+@font-face {
+    font-family: 'Mistral';
+    src: url('/static/fonts/Mistral.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    background: #18151f;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: #221b2f;
+    padding: 24px 0 12px 0;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(44,44,84,0.10);
+}
+
+header h1 {
+    color: #a29bfe;
+    font-size: 2em;
+    margin: 0;
+    letter-spacing: 2px;
+    font-style: italic;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 48px;
+}
+
+.form-container {
+    background: #221b2f;
+    padding: 32px 28px 24px 28px;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(44,44,84,0.13);
+    display: flex;
+    flex-direction: column;
+    min-width: 320px;
+    max-width: 90vw;
+    gap: 14px;
+}
+
+.form-container label {
+    color: #a29bfe;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.form-container input[type="email"],
+.form-container input[type="password"] {
+    padding: 10px 12px;
+    border-radius: 4px;
+    border: 1px solid #6c5ce7;
+    background: #18151f;
+    color: #fff;
+    font-size: 1em;
+    margin-bottom: 10px;
+    outline: none;
+    transition: border 0.2s;
+}
+
+.form-container input[type="email"]:focus,
+.form-container input[type="password"]:focus {
+    border: 1.5px solid #a29bfe;
+}
+
+.form-container button[type="submit"] {
+    padding: 10px 0;
+    border-radius: 4px;
+    border: none;
+    background: #6c5ce7;
+    color: #fff;
+    font-weight: bold;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 8px;
+}
+
+.form-container button[type="submit"]:hover {
+    background: #2d2d7b;
+}
+
+main p {
+    margin-top: 18px;
+    color: #b2bec3;
+    font-size: 1em;
+}
+
+main a {
+    color: #6c5ce7;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+
+main a:hover {
+    color: #2d2d7b;
+    text-decoration: underline;
+}
+
+/* login.css */
+.login-logo-bar {
+    position: absolute;
+    top: 24px;
+    left: 32px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(35, 41, 70, 0.85);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px #23294633;
+    padding: 8px 18px 8px 10px;
+    z-index: 100;
+}
+
+@media (max-width: 600px) {
+    .login-logo-bar {
+        top: 12px;
+        left: 8px;
+        padding: 6px 10px 6px 6px;
+        border-radius: 8px;
+    }
+}
+
+.login-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(35, 41, 70, 0.85);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px #23294633;
+    padding: 24px 32px 24px 32px;
+    margin: 32px auto 24px auto;
+    position: relative;
+    gap: 10px;
+    max-width: 420px;
+}
+
+.login-logo-img {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px #6c5ce755;
+    background: #18151f;
+    transition: transform 0.18s;
+}
+.login-logo-img:hover {
+    transform: scale(1.08) rotate(-3deg);
+}
+
+.login-logo-title {
+    font-family: 'UnifrakturCook', cursive, serif;
+    color: #ffe066;
+    font-size: 2.2em;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-right: 0;
+    text-shadow:
+        0 0 8px #ffe066cc,
+        0 0 24px #ffe06688,
+        0 0 2px #fff;
+    position: relative;
+}
+
+.neon-flicker {
+    animation: neon-flicker 2.5s infinite alternate;
+}
+
+@keyframes neon-flicker {
+    0%, 100% { opacity: 1; text-shadow: 0 0 8px #ffe066cc, 0 0 24px #ffe06688, 0 0 2px #fff; }
+    10% { opacity: 0.7; text-shadow: 0 0 2px #ffe06677, 0 0 8px #ffe06644; }
+    20% { opacity: 1; }
+    22% { opacity: 0.5; }
+    24% { opacity: 1; }
+    30% { opacity: 0.8; }
+    35% { opacity: 1; }
+    40% { opacity: 0.6; }
+    45% { opacity: 1; }
+    50% { opacity: 0.9; }
+    55% { opacity: 1; }
+    60% { opacity: 0.7; }
+    65% { opacity: 1; }
+    70% { opacity: 0.8; }
+    75% { opacity: 1; }
+    80% { opacity: 0.6; }
+    85% { opacity: 1; }
+    90% { opacity: 0.9; }
+    95% { opacity: 1; }
+}

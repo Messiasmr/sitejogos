@@ -1,0 +1,383 @@
+body {
+    background: linear-gradient(120deg, #18151f 60%, #232946 100%);
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+header {
+    background: #221b2f;
+    padding: 32px 0 18px 0;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(44,44,84,0.12);
+}
+
+header h1 {
+    color: #a29bfe;
+    font-size: 2.2em;
+    margin: 0;
+    letter-spacing: 2.5px;
+    font-style: italic;
+    font-weight: 700;
+    text-shadow: 0 2px 12px #6c5ce733;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 56px;
+    min-height: 70vh;
+}
+
+.form-container {
+    background: #232946;
+    padding: 40px 48px 32px 48px;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(44,44,84,0.18);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 380px;
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto 32px auto;
+    gap: 18px;
+    border: 1.5px solid #6c5ce7;
+    position: relative;
+}
+
+.form-container label {
+    color: #a29bfe;
+    font-weight: 600;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+    font-size: 1.06em;
+    display: block;
+}
+
+.form-container input[type="text"],
+.form-container input[type="email"],
+.form-container input[type="password"] {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 6px;
+    border: 1.5px solid #6c5ce7;
+    background: #18151f;
+    color: #fff;
+    font-size: 1.08em;
+    margin-bottom: 2px;
+    outline: none;
+    transition: border 0.2s, box-shadow 0.18s;
+    box-shadow: 0 1px 4px #6c5ce722;
+}
+
+.form-container input[type="text"]:focus,
+.form-container input[type="email"]:focus,
+.form-container input[type="password"]:focus {
+    border: 1.5px solid #a29bfe;
+    box-shadow: 0 2px 8px #a29bfe33;
+}
+
+.form-container input[type="file"] {
+    margin-bottom: 12px;
+    color: #e0e0e0;
+    background: #18151f;
+    border: none;
+    font-size: 1em;
+    width: 100%;
+}
+
+.form-container button[type="submit"] {
+    padding: 12px 0;
+    border-radius: 6px;
+    border: none;
+    background: linear-gradient(90deg, #6c5ce7 60%, #a29bfe 100%);
+    color: #fff;
+    font-weight: bold;
+    font-size: 1.13em;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.18s;
+    margin-top: 10px;
+    box-shadow: 0 2px 8px #6c5ce733;
+    letter-spacing: 0.5px;
+    width: 100%;
+}
+
+.form-container button[type="submit"]:hover {
+    background: linear-gradient(90deg, #2d2d7b 60%, #6c5ce7 100%);
+    box-shadow: 0 4px 16px #6c5ce755;
+}
+
+main p {
+    margin-top: 22px;
+    color: #b2bec3;
+    font-size: 1.04em;
+    text-align: center;
+}
+
+main a {
+    color: #6c5ce7;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s;
+    border-radius: 3px;
+    padding: 1px 4px;
+}
+
+main a:hover {
+    color: #ffe066;
+    background: #23294644;
+    text-decoration: underline;
+}
+
+.flashes {
+    position: fixed;
+    top: 120px; /* Mais para baixo */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3000;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    min-width: 260px;
+    max-width: 90vw;
+    text-align: center;
+}
+
+.flashes li {
+    color: #ff4e50;
+    background: #232946;
+    border: 1.5px solid #ff4e50;
+    border-radius: 6px;
+    padding: 8px 14px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    text-align: center;
+    list-style: none;
+}
+
+.flash {
+    background: rgba(44,44,84,0.97);
+    color: #ffe066;
+    border: 1.5px solid #ff4e50;
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-size: 1em;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 12px #232946cc;
+    opacity: 0.97;
+    transition: opacity 0.4s;
+}
+
+.flash-error {
+    color: #ff4e50;
+    border-color: #ff4e50;
+    background: rgba(44,44,84,0.97);
+}
+
+.flash-success {
+    color: #00b894;
+    border-color: #00b894;
+    background: rgba(44,44,84,0.97);
+}
+
+.form-container {
+    position: relative;
+}
+
+.input-group {
+    position: relative;
+    width: 100%;
+    margin-bottom: 18px;
+    max-width: 420px;
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 18px;
+    position: relative;
+    max-width: 420px;
+}
+
+.input-row label {
+    flex: 0 0 110px;
+    color: #a29bfe;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    font-size: 1.06em;
+    margin-right: 12px;
+    text-align: right;
+}
+
+.input-row input[type="text"],
+.input-row input[type="email"],
+.input-row input[type="password"],
+.input-row input[type="file"] {
+    flex: 1 1 0;
+    padding: 12px 14px;
+    border-radius: 6px;
+    border: 1.5px solid #6c5ce7;
+    background: #18151f;
+    color: #fff;
+    font-size: 1.08em;
+    outline: none;
+    transition: border 0.2s, box-shadow 0.18s;
+    box-shadow: 0 1px 4px #6c5ce722;
+    margin-right: 0;
+}
+
+.input-row input[type="file"] {
+    padding: 7px 0;
+    background: none;
+    color: #e0e0e0;
+    border: none;
+    font-size: 1em;
+}
+
+.input-row input[type="text"]:focus,
+.input-row input[type="email"]:focus,
+.input-row input[type="password"]:focus {
+    border: 1.5px solid #a29bfe;
+    box-shadow: 0 2px 8px #a29bfe33;
+}
+
+.input-row input::placeholder {
+    color: #a29bfe;
+    opacity: 0.6;
+    font-size: 1.08em;
+    letter-spacing: 0.5px;
+}
+
+.input-popup {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(44,44,84,0.97);
+    color: #ff4e50;
+    border: 1.5px solid #ff4e50;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.98em;
+    z-index: 99999;
+    min-width: 180px;
+    max-width: 260px;
+    opacity: 0;
+    box-shadow: 0 2px 12px #232946cc;
+    display: none;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    white-space: pre-line;
+    margin-left: 12px;
+}
+
+.username-suggestion {
+    display: inline-block;
+    background: rgba(162, 155, 254, 0.18);
+    color: #a29bfe;
+    border-radius: 6px;
+    padding: 3px 10px;
+    margin-top: 8px;
+    cursor: pointer;
+    font-size: 0.98em;
+    opacity: 0.7;
+    transition: background 0.18s, opacity 0.18s;
+}
+
+.username-suggestion:hover {
+    background: #a29bfe33;
+    opacity: 1;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    border: 0;
+}
+
+@media (max-width: 600px) {
+    .form-container {
+        padding: 20px 8vw 18px 8vw;
+        min-width: 0;
+        max-width: 98vw;
+    }
+    header h1 {
+        font-size: 1.3em;
+    }
+    main {
+        margin-top: 24px;
+    }
+}
+
+@media (max-width: 700px) {
+    .form-container {
+        padding: 18px 2vw 18px 2vw;
+        min-width: 0;
+        max-width: 98vw;
+    }
+    .input-row {
+        flex-direction: column;
+        align-items: flex-start;
+        max-width: 98vw;
+    }
+    .input-row label {
+        text-align: left;
+        margin-bottom: 4px;
+        margin-right: 0;
+    }
+    .input-popup {
+        position: static;
+        transform: none;
+        margin-left: 0;
+        margin-top: 6px;
+        min-width: 90vw;
+        max-width: 98vw;
+    }
+}
+
+.file-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: linear-gradient(90deg, #6c5ce7 60%, #a29bfe 100%);
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.18s, transform 0.18s;
+    box-shadow: 0 2px 12px #6c5ce733;
+    font-size: 1.12em;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    text-align: center;
+    border: none;
+    outline: none;
+    position: relative;
+}
+
+.file-label:hover {
+    background: linear-gradient(90deg, #2d2d7b 60%, #6c5ce7 100%);
+    transform: scale(1.04);
+    box-shadow: 0 4px 18px #6c5ce799;
+}
+
+.file-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em;
+}

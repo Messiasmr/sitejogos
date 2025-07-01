@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mobilete Games - Sua Loja de Jogos Favorita</title>
+    <link rel="stylesheet" href="/static/style2.css">
+    <link rel="stylesheet" href="/static/pagination.css">
+    <link rel="stylesheet" href="/static/css/index.css">
+    <style>
+
+    </style>
+<!-- Substitua TODO o bloco do header e top-right-actions por este -->
+<header>
+    <div class="header-container" style="display:flex;align-items:center;justify-content:space-between;">
+        <a href="/" class="store-title" style="display:flex;align-items:center;text-decoration:none;">
+            <img src="/static/excitebike_logo.png" alt="Logo">
+            <span class="neon-flicker">The Mobilete Games</span>
+        </a>
+
+        {% if logged_user %}
+        <div class="avatar-centralizado" style="margin-left: -240px; position: relative;">
+            <span class="profile-avatar-wrapper">
+                <img src="{% if logged_user.profile_picture and logged_user.profile_picture|length == 24 %}/imagem/{{ logged_user.profile_picture }}{% else %}/{{ logged_user.profile_picture or 'static/default_avatar.png' }}{% endif %}" alt="Perfil" class="profile-avatar">
+                <a href="/profile" title="Meu perfil" class="avatar-invisible-link"></a>
+            </span>
+        </div>
+        {% endif %}
+
+        <div class="top-right-actions">
+            <a href="/logout" id="logout-btn" title="Sair da conta">Sair</a>
+            <div id="notification-bell-container">
+                <button id="notification-bell" style="background:transparent; border:none; cursor:pointer; position:relative;">
+                    <span style="font-size:2em; color:#6c5ce7;">&#128276;</span>
+                    {% set notif_count = friend_requests|length %}
+                    {% if notif_count > 0 %}
+                        <span id="notif-count" style="position:absolute;top:0;right:0;background:#e17055;color:#fff;border-radius:50%;font-size:0.8em;padding:2px 6px;">{{ notif_count }}</span>
+                    {% endif %}
+                </button>
+                <div id="notif-dropdown" style="display:none; position:absolute; right:0; top:36px; background:#1b2838; border-radius:10px; box-shadow:0 4px 24px #232946cc; width:340px; max-width:90vw; z-index:100; padding:22px 20px 18px 20px;">
+                    <h4 style="color:#fff; margin:0 0 14px 0; font-size:1.18em; font-weight:600; letter-spacing:0.5px;">Notificações</h4>
+                    {% if friend_requests %}
+                        <div class="notif-section">
+                            <h5 style="color:#fff;">Solicitações de amizade</h5>
+                            <ul>
+                            {% for req_user in friend_requests %}
+                                <li style="margin-bottom:10px;">
+                                    <img src="/{{ req_user['profile_picture'] or 'static/default_avatar.png' }}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">
+                                    {{ req_user['name'] or req_user['username'] }}
+                                    <form action="/respond-friend-request" method="post" style="display:inline;">
+                                        <input type="hidden" name="from_user_id" value="{{ req_user['user_id'] }}">
+                                        <button type="submit" name="action" value="accept">Aceitar</button>
+                                        <button type="submit" name="action" value="reject">Recusar</button>
+                                    </form>
+                                </li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    {% else %}
+                        <span style="color:#c7d5e0; font-size:1em;">Nenhuma notificação no momento.</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+    
+    <div class="search-bar" style="display:flex;justify-content:center;gap:8px;margin:32px 0 24px 0;">
+        <input type="text" id="search-input" placeholder="Procure por um jogo..." style="padding:10px 14px;border-radius:4px;border:1px solid #6c5ce7;">
+        <button id="search-button" class="btn-login">Buscar</button>
+    </div>
+    
+    <div class="games-list" id="games-container">
+        <div class="loading">Carregando jogos...</div>
+    </div>
+    <div class="pagination" id="pagination"></div>
+
+    <script>
+    const gamesContainer = document.getElementById('games-container');
+    const pagination = document.getElementById('pagination');
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.getElementById('search-button');
+
+    const isLogged = {{ 'true' if logged_user else 'false' }};
+    const favoriteGames = {{ (logged_user.favorites | selectattr('game_id') | map(attribute='game_id') | list if logged_user and logged_user.favorites else []) | tojson | safe }};
+
+    let currentPage = 1;
+    let totalGames = 0;
+    let currentSearch = "";
+
+    async function loadGames(page = 1, search = "") {
+        gamesContainer.innerHTML = '<div class="loading">Carregando jogos...</div>';
+        const response = await fetch(`/api/games?page=${page}&search=${encodeURIComponent(search)}`);
+        const data = await response.json();
+        const games = data.results || [];
+        totalGames = data.count || 0;
+        const perPage = 20;
+        const totalPages = Math.ceil(totalGames / perPage);
+
+        gamesContainer.innerHTML = '';
+        if (!games.length) {
+            gamesContainer.innerHTML = '<div class="loading">Nenhum jogo encontrado.</div>';
+            pagination.innerHTML = '';
+            return;
+        }
+
+        games.forEach(game => {
+            const gameCard = document.createElement('div');
+            gameCard.className = 'game-card';
+
+            let favBtn = '';
+if (isLogged) {
+    const isFav = favoriteGames.includes(String(game.id));
+    favBtn = `
+        <button type="button" class="fav-btn" data-id="${game.id}" data-name="${game.name}" data-img="${game.background_image || ''}">
+            ${isFav ? 'Favoritado ⭐' : 'Favoritar ⭐'}
+        </button>
+    `;
+}
+
+            gameCard.innerHTML = `
+                <img src="${(game.background_image && game.background_image.length === 24) ? '/imagem/' + game.background_image : (game.background_image || '/static/default_game.png')}" alt="${game.name}">
+                <h3 class="game-title">${game.name}</h3>
+                <div class="metacritic-score">${game.metacritic ? 'Metacritic: ' + game.metacritic : ''}</div>
+                ${favBtn}
+            `;
+            gamesContainer.appendChild(gameCard);
+        });
+
+        generatePagination(totalPages);
+    }
+
+    function generatePagination(totalPages) {
+        pagination.innerHTML = '';
+        if (totalPages <= 1) return;
+
+        if (currentPage > 1) {
+            const prevBtn = createPageButton('<', currentPage - 1);
+            pagination.appendChild(prevBtn);
+        }
+
+        addPageButton(1);
+
+        if (currentPage > 4) pagination.appendChild(createDots());
+
+        for (let i = Math.max(2, currentPage - 2); i <= Math.min(totalPages - 1, currentPage + 2); i++) {
+            addPageButton(i);
+        }
+
+        if (currentPage < totalPages - 3) pagination.appendChild(createDots());
+
+        if (totalPages > 1) addPageButton(totalPages);
+
+        if (currentPage < totalPages) {
+            const nextBtn = createPageButton('>', currentPage + 1);
+            pagination.appendChild(nextBtn);
+        }
+
+        function addPageButton(page) {
+            const btn = document.createElement('button');
+            btn.textContent = page;
+            btn.className = 'page-btn' + (page === currentPage ? ' active' : '');
+            btn.onclick = () => {
+                currentPage = page;
+                loadGames(currentPage, currentSearch);
+                window.scrollTo(0, 0);
+            };
+            pagination.appendChild(btn);
+        }
+
+        function createPageButton(label, targetPage) {
+            const btn = document.createElement('button');
+            btn.textContent = label;
+            btn.className = 'page-btn';
+            btn.onclick = () => {
+                currentPage = targetPage;
+                loadGames(currentPage, currentSearch);
+                window.scrollTo(0, 0);
+            };
+            return btn;
+        }
+
+        function createDots() {
+            const dots = document.createElement('span');
+            dots.textContent = '...';
+            dots.className = 'pagination-dots';
+            return dots;
+        }
+    }
+
+    searchButton.addEventListener('click', () => {
+        currentSearch = searchInput.value.trim();
+        currentPage = 1;
+        loadGames(currentPage, currentSearch);
+    });
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            currentSearch = searchInput.value.trim();
+            currentPage = 1;
+            loadGames(currentPage, currentSearch);
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadGames();
+    });
+
+    gamesContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('fav-btn')) {
+            e.preventDefault();
+            const btn = e.target;
+            fetch('/favorite', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    game_id: btn.dataset.id,
+                    game_name: btn.dataset.name,
+                    game_image: btn.dataset.img
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Atualiza o array local favoriteGames
+                    if (data.action === "removed") {
+                        btn.textContent = "Favoritar ⭐";
+                        const idx = favoriteGames.indexOf(btn.dataset.id);
+                        if (idx !== -1) favoriteGames.splice(idx, 1);
+                    } else if (data.action === "added") {
+                        btn.textContent = "Favoritado ⭐";
+                        if (!favoriteGames.includes(btn.dataset.id)) favoriteGames.push(btn.dataset.id);
+                    }
+                } else {
+                    alert(data.error || "Erro ao favoritar");
+                }
+            });
+        }
+    });
+    </script>
+
+    {% if logged_user %}
+            </button>
+            <div id="notif-dropdown" style="display:none; position:absolute; right:0; top:36px; background:#1b2838; border-radius:10px; box-shadow:0 4px 24px #232946cc; width:340px; max-width:90vw; z-index:100; padding:22px 20px 18px 20px;">
+                <h4 style="color:#fff; margin:0 0 14px 0; font-size:1.18em; font-weight:600; letter-spacing:0.5px;">Notificações</h4>
+                {% if friend_requests %}
+                    <div class="notif-section">
+                        <h5 style="color:#fff;">Solicitações de amizade</h5>
+                        <ul>
+                        {% for req_user in friend_requests %}
+                            <li style="margin-bottom:10px;">
+                                <img src="/{{ req_user['profile_picture'] or 'static/default_avatar.png' }}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">
+                                {{ req_user['name'] or req_user['username'] }}
+                                <form action="/respond-friend-request" method="post" style="display:inline;">
+                                    <input type="hidden" name="from_user_id" value="{{ req_user['user_id'] }}">
+                                    <button type="submit" name="action" value="accept">Aceitar</button>
+                                    <button type="submit" name="action" value="reject">Recusar</button>
+                                </form>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                {% else %}
+                    <span style="color:#c7d5e0; font-size:1em;">Nenhuma notificação no momento.</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bell = document.getElementById('notification-bell');
+        const dropdown = document.getElementById('notif-dropdown');
+
+        if (bell && dropdown) {
+            bell.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            });
+
+            // Fecha o dropdown ao clicar fora
+            document.addEventListener('click', function() {
+                dropdown.style.display = 'none';
+            });
+
+            // Evita fechar o dropdown ao clicar dentro dele
+            dropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+    });
+    </script>
+    {% endif %}
+    {% include 'partials/chatbot.html' %}
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flashes">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+</body>
+</html>
+
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        document.querySelectorAll('.flashes li').forEach(function(el) {
+            el.style.opacity = '0';
+            setTimeout(function() { el.style.display = 'none'; }, 500);
+        });
+    }, 4000); // 4 segundos
+});
+</script>

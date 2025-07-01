@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head><title>Notifications</title></head>
+<body>
+  <h2>Notifications</h2>
+  <h3>Notificações</h3>
+
+  {% if friend_requests %}
+      <div class="notif-section">
+          <h4>Solicitações de amizade</h4>
+          <ul>
+          {% for req in friend_requests %}
+              <li style="margin-bottom:10px;">
+                  <img src="{% if req['profile_picture'] and req['profile_picture']|length == 24 %}/imagem/{{ req['profile_picture'] }}{% else %}/{{ req['profile_picture'] or 'static/default_avatar.png' }}{% endif %}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+                  {{ req['name'] or req['username'] }}
+                  <form action="/respond-friend-request" method="post" style="display:inline;">
+                      <input type="hidden" name="from_user_id" value="{{ req['user_id'] }}">
+                      <button type="submit" name="action" value="accept">Aceitar</button>
+                      <button type="submit" name="action" value="reject">Recusar</button>
+                  </form>
+              </li>
+          {% endfor %}
+          </ul>
+      </div>
+  {% else %}
+      <p>Sem solicitações de amizade.</p>
+  {% endif %}
+
+  <ul>
+    {% for message in messages %}
+      <li>{{ mongo.db.users.find_one({'_id': message['sender_id']})['username'] }}: {{ message['message'] }}</li>
+    {% endfor %}
+  </ul>
+  <a href="{{ url_for('index') }}">Back to Profile</a>
+   {% include 'partials/chatbot.html' %}
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Amigos de {{ user.name or user.username }}</title>
+    <link rel="stylesheet" href="/static/css/friends.css">
+    <style>
+        .friends-list { list-style: none; padding: 0; }
+        .friends-list li { margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+        .friends-list img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #6c5ce7; }
+        .back-link { display: inline-block; margin-top: 20px; color: #6c5ce7; text-decoration: none; }
+        .friend-card { display: flex; align-items: center; margin-bottom: 10px; }
+        .friend-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 10px; }
+        .friend-info { display: flex; flex-direction: column; }
+        .friend-name { font-weight: bold; color: #333; }
+        .friend-profile-link { text-decoration: none; color: #6c5ce7; font-size: 14px; }
+    </style>
+</head>
+<body>
+    </div>
+    <h2 class="friends-title">Amigos de {{ user.name or user.username }}</h2>
+    <div class="friends-list">
+      {% for amigo in amigos %}
+        <div class="friend-card">
+            <img src="{% if amigo.profile_picture and amigo.profile_picture|length == 24 %}/imagem/{{ amigo.profile_picture }}{% else %}/{{ amigo.profile_picture or 'static/default_avatar.png' }}{% endif %}" class="friend-avatar" alt="Avatar">
+            <span class="friend-name">{{ amigo.name or amigo.username }}</span>
+            <a href="/profile/{{ amigo.user_id }}" class="friend-profile-link">Ver perfil</a>
+        </div>
+      {% else %}
+        <div class="no-friends">Nenhum amigo encontrado.</div>
+      {% endfor %}
+    </div>
+    <a href="/" class="home-btn" title="Voltar para a página inicial">
+        <span class="home-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <path d="M3 11.5L12 4L21 11.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M5 10.5V20H19V10.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                <rect x="9" y="15" width="6" height="5" rx="1.5" fill="#fff" opacity="0.7"></rect>
+            </svg>
+        </span>
+    </a>
+    <script>
+const fab = document.getElementById('story-chat-fab');
+let isDragging = false, offsetX = 0, offsetY = 0;
+
+fab.addEventListener('mousedown', function(e) {
+    isDragging = true;
+    offsetX = e.clientX - fab.getBoundingClientRect().left;
+    offsetY = e.clientY - fab.getBoundingClientRect().top;
+    fab.style.transition = 'none';
+});
+document.addEventListener('mousemove', function(e) {
+    if (isDragging) {
+        fab.style.left = (e.clientX - offsetX) + 'px';
+        fab.style.top = (e.clientY - offsetY) + 'px';
+        fab.style.right = 'auto';
+        fab.style.bottom = 'auto';
+        fab.style.position = 'fixed';
+    }
+});
+document.addEventListener('mouseup', function() {
+    isDragging = false;
+    fab.style.transition = '';
+});
+
+// Suporte para toque em dispositivos móveis
+fab.addEventListener('touchstart', function(e) {
+    isDragging = true;
+    const touch = e.touches[0];
+    offsetX = touch.clientX - fab.getBoundingClientRect().left;
+    offsetY = touch.clientY - fab.getBoundingClientRect().top;
+    fab.style.transition = 'none';
+});
+document.addEventListener('touchmove', function(e) {
+    if (isDragging) {
+        const touch = e.touches[0];
+        fab.style.left = (touch.clientX - offsetX) + 'px';
+        fab.style.top = (touch.clientY - offsetY) + 'px';
+        fab.style.right = 'auto';
+        fab.style.bottom = 'auto';
+        fab.style.position = 'fixed';
+    }
+});
+document.addEventListener('touchend', function() {
+    isDragging = false;
+    fab.style.transition = '';
+});
+</script>
+</body>
+</html>

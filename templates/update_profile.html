@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Perfil</title>
+    <link rel="stylesheet" href="/static/style2.css">
+    <link rel="stylesheet" href="/static/css/perfil.css">
+</head>
+<body>
+    <a href="/profile/{{ user.user_id }}" style="color:#a29bfe;">&larr; Voltar ao perfil</a>
+    <h2>Editar Perfil</h2>
+    <form action="/update-profile" method="POST" enctype="multipart/form-data" class="edit-profile-form">
+        <label for="name">Nome:</label>
+        <input type="text" id="name" name="name" value="{{ user.name }}" required>
+        <br>
+        <label for="bio">Bio:</label>
+        <input type="text" id="bio" name="bio" value="{{ user.bio or '' }}">
+        <br>
+        <!-- Adicione campos para imagem, arte, etc, se quiser -->
+        <button type="submit">Salvar</button>
+    </form>
+</body>
+</html>

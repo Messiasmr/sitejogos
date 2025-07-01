@@ -1,0 +1,206 @@
+.favoritos-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 32px auto 18px auto;
+    max-width: 700px;
+    justify-content: center;
+}
+.favoritos-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2.5px solid #6c5ce7;
+    background: #18151f;
+    transition: box-shadow 0.18s, transform 0.18s;
+}
+.favoritos-avatar:hover,
+.favoritos-avatar:focus {
+    box-shadow: 0 0 16px #a29bfecc, 0 2px 12px #6c5ce799;
+    transform: scale(1.08);
+    border-color: #6c5ce7;
+}
+.favoritos-username {
+    color: #a29bfe;
+    font-size: 2em;
+    font-weight: bold;
+}
+.favoritos-catalogo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
+    max-width: 900px;
+    margin: 0 auto 32px auto;
+}
+/* Card de favorito */
+.favorito-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, #232946 80%, #6c5ce7 100%);
+    border-radius: 16px;
+    box-shadow: 0 4px 24px #23294633, 0 2px 12px #6c5ce799;
+    padding: 22px 16px 18px 16px;
+    margin: 16px;
+    width: 200px;
+    position: relative;
+    transition: box-shadow 0.22s, transform 0.18s, border 0.18s;
+    border: 2px solid transparent;
+}
+
+.favorito-card:hover {
+    box-shadow: 0 8px 32px #6c5ce799, 0 0 24px #a29bfe55;
+    border: 2px solid #a29bfe;
+    transform: translateY(-4px) scale(1.04);
+}
+
+/* Imagem do jogo */
+.favorito-img {
+    width: 100%;
+    max-width: 130px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 12px #23294644;
+    transition: box-shadow 0.18s;
+}
+.favorito-card:hover .favorito-img {
+    box-shadow: 0 6px 24px #6c5ce799;
+}
+
+/* Título do jogo */
+.favorito-title {
+    color: #fff;
+    font-size: 1.12em;
+    font-weight: 700;
+    margin-bottom: 16px;
+    text-align: center;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 8px #23294688;
+}
+.favoritos-pagination {
+    text-align: center;
+    margin-bottom: 24px;
+}
+.favoritos-page {
+    display: inline-block;
+    background: #232946;
+    color: #a29bfe;
+    border-radius: 6px;
+    padding: 7px 16px;
+    margin: 0 4px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+}
+.favoritos-page.atual, .favoritos-page:hover {
+    background: #6c5ce7;
+    color: #fff;
+}
+.favoritos-amigos {
+    max-width: 900px;
+    margin: 0 auto 32px auto;
+    text-align: center;
+}
+.favoritos-amigo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 10px 10px 0;
+    background: #232946;
+    border-radius: 18px;
+    padding: 6px 16px;
+    color: #a29bfe;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+.favoritos-amigo-link:hover {
+    background: #6c5ce7;
+    color: #fff;
+}
+.favoritos-amigo-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid #a29bfe;
+}
+.home-btn {
+    position: fixed;
+    top: 32px;
+    left: 32px;
+    z-index: 2100;
+    background: linear-gradient(120deg, #a29bfe 60%, #6c5ce7 100%);
+    border-radius: 50%;
+    box-shadow: 0 2px 12px #a29bfe55;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        background 0.18s,
+        box-shadow 0.18s,
+        transform 0.13s;
+    border: none;
+    outline: none;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.home-btn:hover,
+.home-btn:focus {
+    background: linear-gradient(120deg, #ffe066 40%, #a29bfe 100%);
+    box-shadow: 0 4px 18px #ffe06699, 0 0 12px #a29bfe77;
+    transform: translateY(-2px) scale(1.06);
+    outline: none;
+}
+
+.home-btn .home-icon svg {
+    display: block;
+    width: 26px;
+    height: 26px;
+    filter: drop-shadow(0 0 8px #ffe066cc);
+    transition: filter 0.18s, color 0.18s;
+    color: #fff;
+}
+
+.home-btn:hover .home-icon svg,
+.home-btn:focus .home-icon svg {
+    color: #ffe066;
+    filter: drop-shadow(0 0 16px #ffe066cc) brightness(1.15);
+}
+
+/* Botão de desfavoritar */
+.fav-btn {
+    background: linear-gradient(90deg, #fff 60%, #ffe066 100%);
+    color: #ff4e50;
+    border: 2px solid #ff4e50;
+    border-radius: 8px;
+    padding: 8px 0;
+    font-weight: 700;
+    font-size: 1em;
+    cursor: pointer;
+    width: 100%;
+    margin-top: auto;
+    margin-bottom: 0;
+    box-shadow: 0 2px 8px #ff4e5022;
+    transition: 
+        background 0.18s, 
+        color 0.18s, 
+        box-shadow 0.18s, 
+        border 0.18s,
+        transform 0.13s;
+    outline: none;
+}
+
+.fav-btn:hover, .fav-btn:focus {
+    background: linear-gradient(90deg, #ff4e50 60%, #ffe066 100%);
+    color: #fff;
+    border: 2px solid #ffe066;
+    box-shadow: 0 4px 18px #ff4e5077, 0 0 8px #ffe06699;
+    transform: translateY(-2px) scale(1.04);
+}

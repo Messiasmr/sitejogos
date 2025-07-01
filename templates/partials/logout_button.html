@@ -1,0 +1,5 @@
+{% if session.get('user') %}
+<a href="{{ url_for('logout') }}" id="logout-btn" title="Sair da conta">
+    <span class="logout-icon">⎋</span> Sair
+</a>
+{% endif %}

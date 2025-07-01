@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Buscar Amigos</title>
+    <link rel="stylesheet" href="/static/css/perfil.css">
+    <link rel="stylesheet" href="/static/css/search_friend.css">
+    <style>
+        .bell-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            color: #6c5ce7;
+            line-height: 1;
+        }
+        .not-found-popup {
+            display: inline-block;
+            background: #ff4e50;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            box-shadow: 0 2px 12px #23294644;
+            margin: 18px auto 0 auto;
+            animation: fadeInPush 0.4s;
+            position: relative;
+        }
+        @keyframes fadeInPush {
+            0% { opacity: 0; transform: translateY(-20px) scale(0.95);}
+            100% { opacity: 1; transform: translateY(0) scale(1);}
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="home-btn" title="Voltar para a página inicial">
+        <span class="home-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <path d="M3 11.5L12 4L21 11.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M5 10.5V20H19V10.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                <rect x="9" y="15" width="6" height="5" rx="1.5" fill="#fff" opacity="0.7"></rect>
+            </svg>
+        </span>
+    </a>
+    <div class="search-friends-center">
+        <div class="search-friend-section" style="text-align:center; margin-bottom:18px;">
+            <form action="/search_friend" method="get" style="display:inline-flex; gap:8px;">
+                <input type="text" name="q" placeholder="Buscar amigo por nome ou usuário" required style="padding:7px 12px; border-radius:4px; border:1.5px solid #6c5ce7;">
+                <button type="submit" style="background:#6c5ce7; color:#fff; border:none; border-radius:4px; padding:7px 16px; cursor:pointer;">Buscar</button>
+            </form>
+            {% if buscou and not results %}
+                <div id="not-found-popup" class="not-found-popup">
+                    Nenhum usuário encontrado.
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="friends_section" style="margin-top:24px;">
+            {% if buscou and results %}
+                <ul>
+                {% for user in results %}
+                    <li class="search-friend-result" style="margin-bottom:18px;display:flex;align-items:center;gap:14px;">
+                        <a href="/profile/{{ user.user_id }}">
+                            <img src="{% if user.profile_picture and user.profile_picture|length == 24 %}/imagem/{{ user.profile_picture }}{% else %}/{{ user.profile_picture or 'static/default_avatar.png' }}{% endif %}"
+                                 alt="Foto de {{ user.name or user.username }}"
+                                 style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #6c5ce7;margin-right:10px;">
+                            <span class="search-friend-name">
+                                {{ user.name }}
+                                <span class="search-friend-id">#{{ user.user_id[-4:] }}</span>
+                            </span>
+                        </a>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+    const notFound = document.getElementById('not-found-popup');
+    if (notFound) {
+        setTimeout(() => {
+            notFound.style.opacity = 0;
+            setTimeout(() => {
+                notFound.style.display = "none";
+            }, 500);
+        }, 4000);
+    }
+});
+</script>
+</body>
+</html>

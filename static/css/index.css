@@ -1,0 +1,566 @@
+@import url('https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap');
+
+body {
+    background: #18151f;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: #221b2f;
+    padding: 24px 0 12px 0;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(44,44,84,0.10);
+}
+
+header h1 {
+    color: #a29bfe;
+    font-size: 2.2em;
+    margin: 0;
+    letter-spacing: 2px;
+}
+
+.search-bar {
+    display: flex;
+    justify-content: center;
+    margin: 32px 0 24px 0;
+    gap: 8px;
+}
+
+#search-input {
+    padding: 10px 14px;
+    border-radius: 4px;
+    border: 1px solid #6c5ce7;
+    background: #18151f;
+    color: #fff;
+    font-size: 1em;
+    outline: none;
+    width: 320px;
+    transition: border 0.2s;
+}
+
+#search-input:focus {
+    border: 1.5px solid #a29bfe;
+}
+
+#search-button {
+    background: #6c5ce7;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 18px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#search-button:hover {
+    background: #2d2d7b;
+}
+
+.games-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.game-card, .favorito-card {
+    background: linear-gradient(120deg, #232946 70%, #18151f 100%);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px #23294622, 0 1.5px 4px #6c5ce733;
+    padding: 14px 10px 12px 10px;
+    width: 210px;
+    min-height: 170px;
+    text-align: center;
+    border: 1.5px solid #6c5ce7;
+    transition:
+        box-shadow 0.22s cubic-bezier(.4,0,.2,1),
+        border 0.18s,
+        background 0.18s,
+        transform 0.18s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    margin: 8px;
+}
+
+.game-card:hover, .favorito-card:hover,
+.game-card:focus-within, .favorito-card:focus-within {
+    background: linear-gradient(120deg, #6c5ce7 60%, #232946 100%);
+    box-shadow: 0 8px 32px #6c5ce7aa, 0 2px 12px #23294633;
+    border: 1.5px solid #ffe066;
+    transform: translateY(-6px) scale(1.06) rotate(-1deg);
+    z-index: 2;
+}
+
+/* Imagem dos cards */
+.game-card img, .favorito-card img {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.18s cubic-bezier(.4,0,.2,1), box-shadow 0.18s;
+    box-shadow: 0 1px 4px #6c5ce755;
+    background: #18151f;
+    margin-bottom: 6px;
+}
+.game-card:hover img, .favorito-card:hover img,
+.game-card:focus-within img, .favorito-card:focus-within img {
+    transform: scale(1.09) rotate(-2deg);
+    box-shadow: 0 4px 18px #a29bfe99;
+}
+
+/* Título dos cards */
+.game-title, .favorito-title {
+    color: #a29bfe;
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.metacritic-score {
+    color: #00b894;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.store-links {
+    margin-top: 8px;
+}
+
+.store-link {
+    color: #6c5ce7;
+    text-decoration: none;
+    font-weight: bold;
+    margin-right: 8px;
+    transition: color 0.2s;
+}
+
+.store-link:hover {
+    color: #2d2d7b;
+    text-decoration: underline;
+}
+
+.loading {
+    text-align: center;
+    color: #a29bfe;
+    font-size: 1.2em;
+    margin: 32px 0;
+}
+
+.pagination {
+    text-align: center;
+    margin: 18px 0;
+}
+
+.top-right-actions {
+    position: fixed;
+    top: 32px;
+    right: 32px;
+    display: flex;
+    align-items: center;
+    gap: 18px; /* Espaço entre o botão e o sino */
+    z-index: 2100;
+}
+
+body.index-page #logout-btn {
+    margin-left: 50px !important;
+    margin-top: 18px !important;
+}
+
+#notif-dropdown {
+    top: 60px !important; /* ou aumente para 64px, 70px, etc, conforme desejar */
+}
+
+#flash-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2200;
+    max-width: 300px;
+    width: 100%;
+}
+
+.flash {
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    color: #fff;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.flash-success {
+    background: #00b894;
+}
+
+.flash-error {
+    background: #ff4757;
+}
+
+.flash-info {
+    background: #3498db;
+}
+
+.flash-warning {
+    background: #f39c12;
+}
+
+.flashes {
+    position: fixed;
+    top: 80px; /* Ajuste para ficar um pouco abaixo do sino */
+    right: 42px; /* Alinhe com o sino, ajuste conforme necessário */
+    z-index: 2200;
+    max-width: 260px;
+    width: 90vw;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+}
+
+.flashes li {
+    background: rgba(35, 41, 70, 0.85); /* Fundo escuro translúcido */
+    color: #a3ffb3;
+    border: 1.5px solid #00b894;
+    padding: 8px 14px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 0.98em;
+    box-shadow: 0 4px 24px #232946cc, 0 1.5px 8px #0002;
+    backdrop-filter: blur(6px) saturate(140%);
+    -webkit-backdrop-filter: blur(6px) saturate(140%);
+    transition: opacity 0.5s;
+    opacity: 1;
+    display: block;
+}
+
+.top-right-actions .profile-avatar-wrapper {
+    display: inline-block;
+    position: relative;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px #23294644;
+    border: 2.5px solid #6c5ce7;
+    background: #18151f;
+    overflow: hidden;
+    vertical-align: middle;
+}
+
+.top-right-actions .profile-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+.top-right-actions .profile-avatar-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    background: linear-gradient(120deg, rgba(255,255,255,0.18) 20%, rgba(255,255,255,0.03) 80%);
+}
+
+.avatar-centralizado {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 24px 0 32px 0;
+    width: 100%;
+}
+
+.avatar-centralizado .profile-avatar-wrapper {
+    margin: 0 auto;
+    margin-left: 580px; /* ajuste o valor conforme desejar (ex: -16px, -32px) */
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    border: 3.5px solid #6c5ce7;
+    box-shadow: 0 0 24px #6c5ce7aa, 0 4px 24px #232946cc;
+    background: #18151f;
+    position: relative;
+    overflow: hidden;
+    animation: glossy-border 2.5s linear infinite;
+}
+
+.avatar-centralizado .profile-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+.avatar-centralizado .profile-avatar-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    background: linear-gradient(120deg, rgba(255,255,255,0.22) 20%, rgba(255,255,255,0.04) 80%);
+    animation: glossy-light 2.5s linear infinite;
+}
+
+@keyframes glossy-border {
+    0% { box-shadow: 0 0 24px #6c5ce7aa, 0 4px 24px #232946cc; }
+    50% { box-shadow: 0 0 36px #a29bfecc, 0 4px 32px #232946cc; }
+    100% { box-shadow: 0 0 24px #6c5ce7aa, 0 4px 24px #232946cc; }
+}
+
+@keyframes glossy-light {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+
+.profile-avatar-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.avatar-invisible-link {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.neon-flicker {
+    color: #a29bfe;
+    font-size: 2.2em;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    letter-spacing: 2px;
+    text-shadow:
+        0 0 8px #a29bfe,
+        0 0 16px #6c5ce7,
+        0 0 24px #6c5ce7,
+        0 0 32px #fff;
+    animation: neon-flicker 4.5s infinite;
+}
+
+@keyframes neon-flicker {
+    0%, 100% {
+        opacity: 1;
+        text-shadow:
+            0 0 8px #ffe066cc,
+            0 0 24px #ffe06688,
+            0 0 2px #fff;
+    }
+    3% {
+        opacity: 0.4;
+        text-shadow: none;
+    }
+    7% {
+        opacity: 0.7;
+        text-shadow: 0 0 2px #ffe06677, 0 0 8px #ffe06644;
+    }
+    10% {
+        opacity: 1;
+        text-shadow:
+            0 0 16px #ffe066cc,
+            0 0 32px #ffe06688,
+            0 0 4px #fff;
+    }
+    13% {
+        opacity: 0.5;
+        text-shadow: none;
+    }
+    17% {
+        opacity: 0.9;
+        text-shadow: 0 0 12px #ffe06699, 0 0 20px #ffe06655;
+    }
+    22% {
+        opacity: 0.6;
+        text-shadow: 0 0 4px #ffe06655;
+    }
+    27% {
+        opacity: 1;
+        text-shadow:
+            0 0 24px #ffe066cc,
+            0 0 40px #ffe06688,
+            0 0 6px #fff;
+    }
+    33% {
+        opacity: 0.3;
+        text-shadow: none;
+    }
+    38% {
+        opacity: 0.8;
+        text-shadow: 0 0 10px #ffe066aa;
+    }
+    45% {
+        opacity: 1;
+        text-shadow:
+            0 0 8px #ffe066cc,
+            0 0 24px #ffe06688,
+            0 0 2px #fff;
+    }
+    60% {
+        opacity: 0.5;
+        text-shadow: 0 0 2px #ffe06677;
+    }
+    70% {
+        opacity: 1;
+        text-shadow:
+            0 0 16px #ffe066cc,
+            0 0 32px #ffe06688,
+            0 0 4px #fff;
+    }
+    82% {
+        opacity: 0.2;
+        text-shadow: none;
+    }
+    90% {
+        opacity: 1;
+        text-shadow:
+            0 0 24px #ffe066cc,
+            0 0 40px #ffe06688,
+            0 0 6px #fff;
+    }
+}
+
+@media (max-width: 700px) {
+    .games-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .game-image {
+        width: 90vw;
+        height: 40vw;
+        min-height: 80px;
+    }
+}
+
+        .store-title {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+        .store-title img {
+            width: 38px;
+            height: 38px;
+            margin-right: 8px;
+        }
+        .store-title span {
+            font-family: 'UnifrakturCook', cursive, serif;
+    color: #ffe066;
+    font-size: 2.2em;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-shadow:
+        0 0 8px #ffe066cc,
+        0 0 24px #ffe06688,
+        0 0 2px #fff;
+    position: relative;
+        }
+        .btn-login {
+            background: #6c5ce7;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 7px 18px;
+            cursor: pointer;
+        }
+
+        .game-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+        .game-title {
+            color: #a29bfe;
+            margin: 10px 0 4px 0;
+            font-size: 1.1em;
+            text-align: center;
+        }
+        .metacritic-score {
+            color: #6c5ce7;
+            font-size: 0.95em;
+            margin-bottom: 8px;
+        }
+        .fav-btn {
+            background: #6c5ce7;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 7px 14px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .games-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 24px;
+            margin: 24px 0;
+        }
+        .loading {
+            color: #a29bfe;
+            text-align: center;
+            margin: 40px 0;
+        }
+        .pagination {
+            text-align: center;
+            margin: 24px 0;
+        }
+        .page-btn.active, .page-btn:focus {
+            background: #6c5ce7;
+            color: #fff;
+        }
+        .page-btn {
+            background: #222;
+            color: #a29bfe;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            margin: 0 3px;
+            cursor: pointer;
+        }
+        .pagination-dots {
+            color: #a29bfe;
+            margin: 0 6px;
+        }
+        .top-right-actions {
+            position: fixed;
+            top: 24px;
+            right: 32px;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        #notification-bell-container {
+            position: relative;
+        }
+
+        #notif-count {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #e17055;
+            color: #fff;
+            border-radius: 50%;
+            font-size: 0.8em;
+            padding: 2px 6px;
+        }
+        #logout-btn {
+    margin-right: 75px;
+    margin-top: -08px;
+}
